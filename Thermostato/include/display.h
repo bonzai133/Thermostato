@@ -11,4 +11,27 @@ void display_IP(const String &sIP);
 void display_time(NTPClient &oClient);
 void display_screen();
 
+class MainScreen {
+  private:
+    SH1106Wire *m_display;
+    String date;
+    String setPointHigh;
+    String setPointLow;
+    String ipAddress;
+    String time;
+    String temperature;
+
+  public:
+    MainScreen();
+    ~MainScreen();
+    void setDate(String value);
+    void setSetpointHigh(String value);
+    void setSetpointLow(String value);
+    void setIpAddress(String value);
+    void setTemperature(String value);
+
+    void drawScreen();
+
+};
+
 #endif

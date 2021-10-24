@@ -77,7 +77,7 @@ void display_screen() {
   display.setTextAlignment(TEXT_ALIGN_LEFT);
 
   display.setFont(ArialMT_Plain_10);
-  //display.setFont(&FreeMono9pt7b);
+  
   // Date
   display.drawString(0, 0, "Mer 20 Oct");
 
@@ -100,4 +100,46 @@ void display_screen() {
   display.drawXbm(105, 22, 16, 16, sun_icon);
 
   display.display();
+}
+
+MainScreen::MainScreen() {
+  //m_display = new SH1106Wire(0x3c, -1, -1);
+  m_display = &display;
+}
+
+MainScreen::~MainScreen() {
+  delete(m_display);
+}
+
+void MainScreen::drawScreen() {
+  m_display->clear();
+  m_display->setBrightness(100);
+
+  m_display->setTextAlignment(TEXT_ALIGN_LEFT);
+
+  m_display->setFont(ArialMT_Plain_10);
+  
+  // Date
+  m_display->drawString(0, 0, "Dim 24 Oct");
+
+  // Setpoint temperature
+  m_display->drawString(96, 42, "19.5°C");
+  m_display->drawString(96, 54, "16.0°C");
+
+  // IP address
+  m_display->drawString(0, 54, "192.168.0.12");
+
+  m_display->setFont(ArialMT_Plain_16);
+  // Hour
+  m_display->drawString(88, 0, "17:13");
+
+  m_display->setFont(ArialMT_Plain_24);
+  // current temperature
+  m_display->drawString(0, 20, "18.8°C");
+
+  // Draw icons
+  m_display->drawXbm(105, 22, 16, 16, sun_icon);
+
+  m_display->display();
+
 }

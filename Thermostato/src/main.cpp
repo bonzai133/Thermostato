@@ -27,6 +27,7 @@
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, NTP_SERVER, NTP_TZ_OFFSET, NTP_REFRESH);
+MainScreen mainScreen;
 
 
 void init_wifi(void) {
@@ -82,7 +83,10 @@ void loop(void) {
   timeClient.update();
   Serial.println(timeClient.getFormattedTime());
   //display_time(timeClient);
-  display_screen();
+  //display_screen();
+  
+  mainScreen.drawScreen();
+
   delay(15000);
 
   
