@@ -1,4 +1,6 @@
 #include "display.h"
+#include "time.h"
+#include "time_utils.h"
 #include "icons.h"
 
 // Display base on SH1106 (OLED 128x64)
@@ -102,6 +104,21 @@ void display_screen() {
   display.display();
 }
 
+bool getLocalTime2(struct tm * info, uint32_t ms)
+{
+    uint32_t start = millis();
+    time_t now;
+    while((millis()-start) <= ms) {
+        time(&now);
+        localtime_r(&now, info);
+        if(info->tm_year > (2016 - 1900)){
+            return true;
+        }
+        delay(10);
+    }
+    return false;
+}
+
 MainScreen::MainScreen() {
   //m_display = new SH1106Wire(0x3c, -1, -1);
   m_display = &display;
@@ -109,22 +126,6 @@ MainScreen::MainScreen() {
 
 MainScreen::~MainScreen() {
   delete(m_display);
-}
-
-String MainScreen::getFormattedTime() {
-  unsigned long hours = (m_rawTime % 86400L) / 3600;
-  String hoursStr = hours < 10 ? "0" + String(hours) : String(hours);
-
-  unsigned long minutes = (m_rawTime % 3600) / 60;
-  String minuteStr = minutes < 10 ? "0" + String(minutes) : String(minutes);
-
-  return hoursStr + ":" + minuteStr;
-}
-
-int MainScreen::getDate() {
-  int day = (((m_rawTime / 86400L) + 4 ) % 7); //0 is Sunday
-
-  return day;
 }
 
 void MainScreen::drawScreen() {
@@ -136,7 +137,7 @@ void MainScreen::drawScreen() {
   m_display->setFont(ArialMT_Plain_10);
   
   // Date
-  m_display->drawString(0, 0, "Dim 24 Oct");
+  m_display->drawString(0, 0, getFormattedDate());
 
   // Setpoint temperature
   m_display->drawString(96, 42, "19.5°C");
@@ -147,7 +148,7 @@ void MainScreen::drawScreen() {
 
   m_display->setFont(ArialMT_Plain_16);
   // Hour
-  m_display->drawString(88, 0, this->getFormattedTime());
+  m_display->drawString(88, 0, getFormattedTime());
 
   m_display->setFont(ArialMT_Plain_24);
   // current temperature

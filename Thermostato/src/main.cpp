@@ -9,9 +9,9 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <WiFiUdp.h>
-#include <NTPClient.h>
 #include <ESP8266WiFi.h>
 
+#include "time_utils.h"
 #include "config.h"
 #include "display.h"
 #include "web.h"
@@ -24,11 +24,7 @@
 #define MY_SDA (0)
 #define MY_SCL (2)
 
-
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, NTP_SERVER, NTP_TZ_OFFSET, NTP_REFRESH);
 MainScreen mainScreen;
-
 
 void init_wifi(void) {
   WiFi.mode(WIFI_STA);
@@ -46,13 +42,7 @@ void init_wifi(void) {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   display_IP(WiFi.localIP().toString());
-
-  // Init NTP Client
-  timeClient.begin();
-  Serial.println(timeClient.getFormattedTime());
-
 }
-
 
 void setup(void) {
   // Init Serial
@@ -70,6 +60,9 @@ void setup(void) {
   // Init Wifi
   init_wifi();
 
+  // Init NTP Client
+  init_time();
+
   // Init web server
   init_server();
   Serial.println("HTTP server started");
@@ -79,15 +72,8 @@ void loop(void) {
   // Websocket cleanup
   server_cleanup();
 
-  // Time
-  timeClient.update();
-  Serial.println(timeClient.getFormattedTime());
-  //display_time(timeClient);
-  //display_screen();
-  mainScreen.setRawTime(timeClient.getEpochTime());
+  // Draw main screen
   mainScreen.drawScreen();
 
   delay(15000);
-
-  
 }
