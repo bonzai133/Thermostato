@@ -111,6 +111,22 @@ MainScreen::~MainScreen() {
   delete(m_display);
 }
 
+String MainScreen::getFormattedTime() {
+  unsigned long hours = (m_rawTime % 86400L) / 3600;
+  String hoursStr = hours < 10 ? "0" + String(hours) : String(hours);
+
+  unsigned long minutes = (m_rawTime % 3600) / 60;
+  String minuteStr = minutes < 10 ? "0" + String(minutes) : String(minutes);
+
+  return hoursStr + ":" + minuteStr;
+}
+
+int MainScreen::getDate() {
+  int day = (((m_rawTime / 86400L) + 4 ) % 7); //0 is Sunday
+
+  return day;
+}
+
 void MainScreen::drawScreen() {
   m_display->clear();
   m_display->setBrightness(100);
@@ -131,7 +147,7 @@ void MainScreen::drawScreen() {
 
   m_display->setFont(ArialMT_Plain_16);
   // Hour
-  m_display->drawString(88, 0, "17:13");
+  m_display->drawString(88, 0, this->getFormattedTime());
 
   m_display->setFont(ArialMT_Plain_24);
   // current temperature

@@ -14,17 +14,23 @@ void display_screen();
 class MainScreen {
   private:
     SH1106Wire *m_display;
-    String date;
-    String setPointHigh;
-    String setPointLow;
-    String ipAddress;
-    String time;
-    String temperature;
+    unsigned long m_rawTime;
+    String m_setPointHigh;
+    String m_setPointLow;
+    String m_ipAddress;
+    String m_time;
+    String m_temperature;
+
+    String getFormattedTime();
+    int getDate();
 
   public:
     MainScreen();
     ~MainScreen();
     void setDate(String value);
+    void setRawTime(unsigned long value) {
+      m_rawTime = value;
+    }
     void setSetpointHigh(String value);
     void setSetpointLow(String value);
     void setIpAddress(String value);

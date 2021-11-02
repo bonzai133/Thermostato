@@ -84,7 +84,7 @@ void loop(void) {
   Serial.println(timeClient.getFormattedTime());
   //display_time(timeClient);
   //display_screen();
-  
+  mainScreen.setRawTime(timeClient.getEpochTime());
   mainScreen.drawScreen();
 
   delay(15000);
