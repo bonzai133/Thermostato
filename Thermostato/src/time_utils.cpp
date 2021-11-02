@@ -1,14 +1,15 @@
 #include "time_utils.h"
 
 #include <Arduino.h>
-//#include <locale.h>
 #include <TZ.h>
 #include "config.h"
 #include "time.h"
 
+const char day_week_fr[7][4] = {"Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"};
+const char month_fr[12][5] = {"Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Jul", "Aou", "Sep", "Oct", "Nov", "Déc"};
+
 void init_time() {
   configTime(MY_TZ, NTP_SERVER);
-  //setlocale(LC_TIME, MY_LOCALE);
 
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)) {
@@ -51,15 +52,25 @@ String getFormattedTime() {
 
 String getFormattedDate() {
   struct tm timeinfo;
-  char my_time[11];
+  String my_date;
   if(!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
-    my_time[0] = 0;
   } else {
-    //strftime_l(my_time, 11, "%a %e %b", &timeinfo, LC_GLOBAL_LOCALE);
-    strftime(my_time, 11, "%a %e %b", &timeinfo);
-  }
-  my_time[10] = 0;
+    char day[3];
 
-  return my_time;
+    const char *wday = day_week_fr[timeinfo.tm_wday];
+
+    strftime(day, 3, "%e", &timeinfo);
+    day[2] = 0;
+
+    const char *month = month_fr[timeinfo.tm_mon];
+    
+    my_date.concat(wday);
+    my_date.concat(" ");
+    my_date.concat(day);
+    my_date.concat(" ");
+    my_date.concat(month);
+
+  }
+  return my_date;
 }
