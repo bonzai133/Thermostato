@@ -26,7 +26,7 @@
 #define MY_SDA (0)
 #define MY_SCL (2)
 
-MainScreen mainScreen;
+MainScreen* mainScreen;
 Settings* gp_settings;
 
 void initLittleFS(void) {
@@ -51,7 +51,8 @@ void init_wifi(void) {
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-  display_IP(WiFi.localIP().toString());
+
+  mainScreen->setIpAddress(WiFi.localIP().toString());
 }
 
 void setup(void) {
@@ -64,8 +65,9 @@ void setup(void) {
   Wire.begin(MY_SDA, MY_SCL);
 
   // Init Oled
-  init_display();
-  display_hello1();
+  mainScreen = new MainScreen();
+  mainScreen->initDisplay();
+  mainScreen->hello();
 
   // Init Wifi
   init_wifi();
@@ -88,9 +90,9 @@ void loop(void) {
   server_cleanup();
 
   // Draw main screen
-  mainScreen.setSetpointHigh(gp_settings->getTempHigh());
-  mainScreen.setSetpointLow(gp_settings->getTempLow());
-  mainScreen.drawScreen();
+  mainScreen->setSetpointHigh(gp_settings->getTempHigh());
+  mainScreen->setSetpointLow(gp_settings->getTempLow());
+  mainScreen->drawScreen();
 
   delay(15000);
 }

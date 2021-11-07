@@ -4,13 +4,6 @@
 #include <SH1106Wire.h>
 #include <NTPClient.h>
 
-void init_display();
-void display_hello1();
-void display_IP(const String &sIP);
-//void display_time(const String &sTime);
-void display_time(NTPClient &oClient);
-void display_screen();
-
 class MainScreen {
   private:
     SH1106Wire *m_display;
@@ -22,6 +15,10 @@ class MainScreen {
   public:
     MainScreen();
     ~MainScreen();
+
+    void hello();
+    void initDisplay();
+
     void setSetpointHigh(String value) { m_setPointHigh = value; };
     void setSetpointLow(String value) { m_setPointLow = value; };
     void setIpAddress(String value) { m_ipAddress = value; };
