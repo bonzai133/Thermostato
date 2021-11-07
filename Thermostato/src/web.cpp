@@ -59,12 +59,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,AwsEventType t
   }
 }
 
-void initLittleFS(void) {
-  if (!LittleFS.begin()) {
-    Serial.println("An error has occurred while mounting LittleFS");
-  }
-  Serial.println("LittleFS mounted successfully");
-}
+
 
 void initWebSocket(void) {
   ws.onEvent(onEvent);
@@ -77,7 +72,7 @@ void init_server(void) {
     pinMode(outputGPIOs[i], OUTPUT);
   }
 
-  initLittleFS();
+  // initLittleFS() must be done before
   initWebSocket();
 
   // Route for root / web page

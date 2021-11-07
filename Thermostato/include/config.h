@@ -6,4 +6,6 @@
 // update interval (in milliseconds, can be changed using setUpdateInterval() ).
 #define NTP_SERVER "europe.pool.ntp.org"
 #define MY_TZ TZ_Europe_Paris
+
+#define MY_CONFIG_FILE "/config/thermostato.cfg"
 #endif

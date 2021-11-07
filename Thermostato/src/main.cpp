@@ -10,7 +10,9 @@
 #include <Wire.h>
 #include <WiFiUdp.h>
 #include <ESP8266WiFi.h>
+#include "LittleFS.h"
 
+#include "settings.h"
 #include "time_utils.h"
 #include "config.h"
 #include "display.h"
@@ -25,6 +27,14 @@
 #define MY_SCL (2)
 
 MainScreen mainScreen;
+Settings* gp_settings;
+
+void initLittleFS(void) {
+  if (!LittleFS.begin()) {
+    Serial.println("An error has occurred while mounting LittleFS");
+  }
+  Serial.println("LittleFS mounted successfully");
+}
 
 void init_wifi(void) {
   WiFi.mode(WIFI_STA);
@@ -63,6 +73,11 @@ void setup(void) {
   // Init NTP Client
   init_time();
 
+  // 
+  initLittleFS();
+  gp_settings = new Settings();
+  gp_settings->LoadConfig();
+
   // Init web server
   init_server();
   Serial.println("HTTP server started");
@@ -73,6 +88,8 @@ void loop(void) {
   server_cleanup();
 
   // Draw main screen
+  mainScreen.setSetpointHigh(gp_settings->getTempHigh());
+  mainScreen.setSetpointLow(gp_settings->getTempLow());
   mainScreen.drawScreen();
 
   delay(15000);
