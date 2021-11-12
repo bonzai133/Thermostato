@@ -13,6 +13,7 @@
 #include "LittleFS.h"
 
 #include "settings.h"
+#include "temperature.h"
 #include "time_utils.h"
 #include "config.h"
 #include "display.h"
@@ -28,6 +29,7 @@
 
 MainScreen* mainScreen;
 Settings* gp_settings;
+Temperature* temperature;
 
 void initLittleFS(void) {
   if (!LittleFS.begin()) {
@@ -67,31 +69,44 @@ void setup(void) {
   // Init Oled
   mainScreen = new MainScreen();
   mainScreen->initDisplay();
-  mainScreen->hello();
 
-  // Init Wifi
-  init_wifi();
-
-  // Init NTP Client
-  init_time();
-
-  // 
+  // Settings
+  mainScreen->progress("Settings");
   initLittleFS();
   gp_settings = new Settings();
   gp_settings->LoadConfig();
 
+  // Init temp
+  mainScreen->progress("Temp sensor");
+  temperature = new Temperature();
+  temperature->initSensor(0x18, 2);
+
+  // Init Wifi
+  mainScreen->progress("Wifi");
+  init_wifi();
+
+  // Init NTP Client
+  mainScreen->progress("Time");
+  init_time();
+
   // Init web server
+  mainScreen->progress("Web Server");
   init_server();
   Serial.println("HTTP server started");
 }
 
 void loop(void) {
+  float temp;
   // Websocket cleanup
   server_cleanup();
 
   // Draw main screen
   mainScreen->setSetpointHigh(gp_settings->getTempHigh());
   mainScreen->setSetpointLow(gp_settings->getTempLow());
+
+  temp = temperature->getTemperature();
+  mainScreen->setTemperature(String(temp, 1));
+
   mainScreen->drawScreen();
 
   delay(15000);

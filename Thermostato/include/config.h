@@ -7,5 +7,11 @@
 #define NTP_SERVER "europe.pool.ntp.org"
 #define MY_TZ TZ_Europe_Paris
 
+#define MY_CONFIG_PATH "/config"
 #define MY_CONFIG_FILE "/config/thermostato.cfg"
+#define MY_CONFIG_TEMP_HIGH "19.9"
+#define MY_CONFIG_TEMP_LOW "15.3"
+#define MY_CONFIG_TEMP_SENSOR_ADDR 0x18
+#define MY_CONFIG_TEMP_SENSOR_RESOLUTION 2
+
 #endif

@@ -6,6 +6,8 @@
 struct persistentData {
   char tempHigh[5];
   char tempLow[5]; 
+  int  sensorAddr;
+  int  sensorResolution;
 };
 
 class Settings {
@@ -24,6 +26,11 @@ class Settings {
     String getTempLow() {
         return m_persistentData.tempLow;
     };
-
+    int getSensorAddr() {
+      return m_persistentData.sensorAddr;
+    }
+    int getSensorResolution() {
+      return m_persistentData.sensorResolution;
+    }
 };
 #endif

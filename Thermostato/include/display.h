@@ -2,7 +2,6 @@
 #define _display_h_
 
 #include <SH1106Wire.h>
-#include <NTPClient.h>
 
 class MainScreen {
   private:
@@ -16,7 +15,7 @@ class MainScreen {
     MainScreen();
     ~MainScreen();
 
-    void hello();
+    void progress(String info);
     void initDisplay();
 
     void setSetpointHigh(String value) { m_setPointHigh = value; };
@@ -26,5 +25,6 @@ class MainScreen {
 
     void drawScreen();
 };
+
 
 #endif

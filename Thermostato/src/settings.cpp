@@ -4,9 +4,15 @@
 #include <LittleFS.h>
 
 Settings::Settings() {
+    if (!LittleFS.exists(MY_CONFIG_PATH)) {
+        LittleFS.mkdir(MY_CONFIG_PATH);
+    }
+
     if (!LittleFS.exists(MY_CONFIG_FILE)) {
-        snprintf(m_persistentData.tempHigh, 5, "20.1");
-        snprintf(m_persistentData.tempLow, 5, "15.8");
+        snprintf(m_persistentData.tempHigh, 5, MY_CONFIG_TEMP_HIGH);
+        snprintf(m_persistentData.tempLow, 5, MY_CONFIG_TEMP_LOW);
+        m_persistentData.sensorAddr = MY_CONFIG_TEMP_SENSOR_ADDR;
+        m_persistentData.sensorResolution = MY_CONFIG_TEMP_SENSOR_RESOLUTION;
 
         SaveConfig();
     }

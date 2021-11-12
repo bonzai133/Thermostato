@@ -25,13 +25,13 @@ void MainScreen::initDisplay() {
   m_display->display();
 }
 
-void MainScreen::hello() {
+void MainScreen::progress(String info) {
   m_display->clear();
   
   m_display->setTextAlignment(TEXT_ALIGN_LEFT);
 
   m_display->setFont(ArialMT_Plain_16);
-  m_display->drawString(0, 10, "Connecting ...");
+  m_display->drawString(0, 10, info);
 
   m_display->display();
 }
@@ -60,7 +60,7 @@ void MainScreen::drawScreen() {
 
   m_display->setFont(ArialMT_Plain_24);
   // current temperature
-  m_display->drawString(0, 20, "18.8°C");
+  m_display->drawString(0, 20, m_temperature + "°C");
 
   // Draw icons
   m_display->drawXbm(105, 22, 16, 16, sun_icon);
