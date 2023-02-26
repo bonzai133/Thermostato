@@ -21,22 +21,6 @@ void init_time() {
   }
 }
 
-bool getLocalTime(struct tm * info)
-{
-    uint32_t ms = 5000;
-    uint32_t start = millis();
-    time_t now;
-    while((millis()-start) <= ms) {
-        time(&now);
-        localtime_r(&now, info);
-        if(info->tm_year > (2016 - 1900)){
-            return true;
-        }
-        delay(10);
-    }
-    return false;
-}
-
 String getFormattedTime() {
   struct tm timeinfo;
   char my_time[6];
@@ -64,7 +48,7 @@ String getFormattedDate() {
     day[2] = 0;
 
     const char *month = month_fr[timeinfo.tm_mon];
-    
+
     my_date.concat(wday);
     my_date.concat(" ");
     my_date.concat(day);
