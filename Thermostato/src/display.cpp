@@ -18,7 +18,7 @@ void MainScreen::initDisplay() {
 
   // Init display
   m_display->init();
-  
+
   m_display->flipScreenVertically();
 
   m_display->clear();
@@ -27,7 +27,7 @@ void MainScreen::initDisplay() {
 
 void MainScreen::progress(String info) {
   m_display->clear();
-  
+
   m_display->setTextAlignment(TEXT_ALIGN_LEFT);
 
   m_display->setFont(ArialMT_Plain_16);
@@ -43,7 +43,7 @@ void MainScreen::drawScreen() {
   m_display->setTextAlignment(TEXT_ALIGN_LEFT);
 
   m_display->setFont(ArialMT_Plain_10);
-  
+
   // Date
   m_display->drawString(0, 0, getFormattedDate());
 
@@ -63,7 +63,9 @@ void MainScreen::drawScreen() {
   m_display->drawString(0, 20, m_temperature + "°C");
 
   // Draw icons
-  m_display->drawXbm(105, 22, 16, 16, sun_icon);
+  if(m_isHeating) {
+    m_display->drawXbm(105, 22, 16, 16, sun_icon);
+  }
 
   m_display->display();
 

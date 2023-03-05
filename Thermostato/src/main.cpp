@@ -19,6 +19,8 @@
 #include "display.h"
 #include "web.h"
 
+#include "heating.h"
+
 // secrets.h must contains the secrets that must not be shared on git
 // const char* ssid = "";
 // const char* password = "";
@@ -30,6 +32,7 @@
 MainScreen* mainScreen;
 Settings* gp_settings;
 Temperature* temperature;
+HeatingControl* heatingControl;
 
 void initLittleFS(void) {
   if (!LittleFS.begin()) {
@@ -81,6 +84,11 @@ void setup(void) {
   temperature = new Temperature();
   temperature->initSensor(0x18, 2);
 
+  // Init heating control
+  heatingControl = new HeatingControl();
+  heatingControl->setSetpointHigh(gp_settings->getTempHigh());
+  heatingControl->setSetpointLow(gp_settings->getTempLow());
+
   // Init Wifi
   mainScreen->progress("Wifi");
   init_wifi();
@@ -106,6 +114,10 @@ void loop(void) {
 
   temp = temperature->getTemperature();
   mainScreen->setTemperature(String(temp, 1));
+  heatingControl->setTemperature(temp);
+
+  // Update heat mode icon
+  mainScreen->setIsHeating(heatingControl->isHeating());
 
   mainScreen->drawScreen();
 

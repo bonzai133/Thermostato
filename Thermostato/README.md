@@ -42,6 +42,9 @@ const char* password = "";
 
 ## Little FS
 - Contain Settings and webpage
+- Access to config file (debug)
+  - http://192.168.x.y/config/thermostato.cfg
+- Remove /data/config/thermostato.cfg when building update to avoid erasing values set by user
 
 # Display
 - Date and time

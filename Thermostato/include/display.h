@@ -11,6 +11,8 @@ class MainScreen {
     String m_ipAddress;
     String m_temperature;
 
+    bool m_isHeating;
+
   public:
     MainScreen();
     ~MainScreen();
@@ -22,6 +24,8 @@ class MainScreen {
     void setSetpointLow(String value) { m_setPointLow = value; };
     void setIpAddress(String value) { m_ipAddress = value; };
     void setTemperature(String value) { m_temperature = value; };
+
+    void setIsHeating(bool value) { m_isHeating = value; }
 
     void drawScreen();
 };
