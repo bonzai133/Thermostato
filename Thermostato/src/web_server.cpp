@@ -1,4 +1,4 @@
-#include "web.h"
+#include "web_server.h"
 #include "LittleFS.h"
 #include <Arduino_JSON.h>
 #include <AsyncElegantOTA.h>
@@ -11,6 +11,7 @@ AsyncWebSocket ws("/ws");
 
 // Assign each GPIO to an output
 int outputGPIOs[NUM_OUTPUTS] = {5, 16, 10, 12};
+
 
 String getOutputStates(){
   JSONVar myArray;
@@ -41,7 +42,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
   }
 }
 
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,AwsEventType type,
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
              void *arg, uint8_t *data, size_t len) {
   switch (type) {
     case WS_EVT_CONNECT:
@@ -59,14 +60,38 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,AwsEventType t
   }
 }
 
+WebServer::WebServer() {
 
+}
 
-void initWebSocket(void) {
+WebServer::~WebServer() {
+
+}
+
+void WebServer::serverCleanup(void) {
+  ws.cleanupClients();
+}
+
+void WebServer::initWebSocket(void) {
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 }
 
-void init_server(void) {
+void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
+  String response = "";
+
+  response += "# HELP thermostato_temperature_celsius Current temperature in celsius.\n";
+  response += "# TYPE thermostato_temperature_celsius gauge\n";
+  response += "thermostato_temperature_celsius ";
+  response += String(m_temperature, 2);
+  response += "\n";
+
+  // Send response
+  request->send(200, "text/plain; charset=utf-8", response);
+
+}
+
+void WebServer::initServer(void) {
   // Set GPIOs as outputs
   for (int i =0; i<NUM_OUTPUTS; i++){
     pinMode(outputGPIOs[i], OUTPUT);
@@ -77,18 +102,20 @@ void init_server(void) {
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(LittleFS, "/index.html", "text/html",false);
+    request->send(LittleFS, "/index.html", "text/html", false);
   });
 
   server.serveStatic("/", LittleFS, "/");
 
+  // Metrics
+  server.on("/metrics", HTTP_GET, std::bind(&WebServer::HandleMetrics, this, std::placeholders::_1));
+
   // Start ElegantOTA
   AsyncElegantOTA.begin(&server);
-  
+
   // Start server
   server.begin();
 }
 
-void server_cleanup(void) {
-  ws.cleanupClients();
-}
+
+

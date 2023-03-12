@@ -17,7 +17,7 @@
 #include "time_utils.h"
 #include "config.h"
 #include "display.h"
-#include "web.h"
+#include "web_server.h"
 
 #include "heating.h"
 
@@ -30,6 +30,7 @@
 #define MY_SCL (2)
 
 MainScreen* mainScreen;
+WebServer* webServer;
 Settings* gp_settings;
 Temperature* temperature;
 HeatingControl* heatingControl;
@@ -99,14 +100,15 @@ void setup(void) {
 
   // Init web server
   mainScreen->progress("Web Server");
-  init_server();
+  webServer = new WebServer();
+  webServer->initServer();
   Serial.println("HTTP server started");
 }
 
 void loop(void) {
   float temp;
   // Websocket cleanup
-  server_cleanup();
+  webServer->serverCleanup();
 
   // Draw main screen
   mainScreen->setSetpointHigh(gp_settings->getTempHigh());
@@ -115,6 +117,7 @@ void loop(void) {
   temp = temperature->getTemperature();
   mainScreen->setTemperature(String(temp, 1));
   heatingControl->setTemperature(temp);
+  webServer->setTemperature(temp);
 
   // Update heat mode icon
   mainScreen->setIsHeating(heatingControl->isHeating());
