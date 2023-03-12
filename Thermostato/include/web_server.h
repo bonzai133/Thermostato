@@ -9,6 +9,9 @@ class WebServer {
     float m_temperature = 0.00;
     void initWebSocket(void);
     void HandleMetrics(AsyncWebServerRequest *request);
+    void HandleAbout(AsyncWebServerRequest *request);
+    String Processor(const String& var);
+
   public:
     WebServer();
     ~WebServer();

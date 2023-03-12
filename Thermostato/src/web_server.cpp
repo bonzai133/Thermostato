@@ -88,7 +88,18 @@ void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
 
   // Send response
   request->send(200, "text/plain; charset=utf-8", response);
+}
 
+void WebServer::HandleAbout(AsyncWebServerRequest *request) {
+      request->send(LittleFS, "/about.html", "text/html", false,
+                    std::bind(&WebServer::Processor, this, std::placeholders::_1));
+}
+
+String WebServer::Processor(const String& var)
+{
+  if(var == "VERSION")
+    return F("0.1");
+  return String();
 }
 
 void WebServer::initServer(void) {
@@ -109,6 +120,9 @@ void WebServer::initServer(void) {
 
   // Metrics
   server.on("/metrics", HTTP_GET, std::bind(&WebServer::HandleMetrics, this, std::placeholders::_1));
+
+  // Web Page
+  server.on("/about", HTTP_GET, std::bind(&WebServer::HandleAbout, this, std::placeholders::_1));
 
   // Start ElegantOTA
   AsyncElegantOTA.begin(&server);

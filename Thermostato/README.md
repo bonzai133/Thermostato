@@ -55,6 +55,7 @@ const char* password = "";
 
 # Web page
 - Example with control of GPIO with Websocket
+- About page using templating
 - TODO: replace by
   - Configuration web page
   - Status web page
@@ -65,5 +66,4 @@ const char* password = "";
   - Configuration of heating periods
 
 # Monitoring
-- TODO
   - Expose /metrics for Prometheus
