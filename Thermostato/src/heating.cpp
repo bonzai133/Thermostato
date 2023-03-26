@@ -4,8 +4,9 @@
 
 HeatingControl::HeatingControl() {
     // Init values
-    m_setPointHigh=19.5;
-    m_setPointLow=19.0;
+    m_tempSetpoint=19.0;
+    m_tempDelta=0.5;
+
     m_temperature=19.2;
 
     m_isHeating=false;
@@ -29,15 +30,17 @@ void HeatingControl::setTemperature(float value)
 
 // Update heating state
 void HeatingControl::update(void) {
+    float delta = m_temperature - m_tempSetpoint;
     // m_isHeating update
     if(m_isHeating) {
         // Stop heating if above high point
-        if(m_temperature >= m_setPointHigh) {
+        
+        if(delta >= m_tempDelta) {
             m_isHeating = false;
         }
     } else {
         // Start heating if below low point
-        if(m_temperature < m_setPointLow) {
+        if(delta < -m_tempDelta) {
             m_isHeating = true;
         }
     }

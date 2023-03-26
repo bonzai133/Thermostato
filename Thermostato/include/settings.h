@@ -4,8 +4,8 @@
 #include <Arduino.h>
 
 struct persistentData {
-  char tempHigh[5];
-  char tempLow[5]; 
+  char tempSetpoint[5];
+  char tempDelta[5]; 
   int  sensorAddr;
   int  sensorResolution;
 };
@@ -20,11 +20,11 @@ class Settings {
 
     void LoadConfig();
     void SaveConfig();
-    String getTempHigh() {
-        return m_persistentData.tempHigh;
+    String getTempSetpoint() {
+        return m_persistentData.tempSetpoint;
     };
-    String getTempLow() {
-        return m_persistentData.tempLow;
+    String getTempDelta() {
+        return m_persistentData.tempDelta;
     };
     int getSensorAddr() {
       return m_persistentData.sensorAddr;

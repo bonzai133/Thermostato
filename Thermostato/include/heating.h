@@ -3,8 +3,8 @@
 
 class HeatingControl {
   private:
-    float m_setPointHigh;
-    float m_setPointLow;
+    float m_tempSetpoint;
+    float m_tempDelta;
     float m_temperature;
     bool m_isHeating;
 
@@ -14,8 +14,8 @@ class HeatingControl {
     HeatingControl();
     ~HeatingControl();
 
-    void setSetpointHigh(String value) { m_setPointHigh = value.toFloat(); };
-    void setSetpointLow(String value) { m_setPointLow = value.toFloat(); };
+    void setTempSetpoint(String value) { m_tempSetpoint = value.toFloat(); };
+    void setTempDelta(String value) { m_tempDelta = value.toFloat(); };
     bool isHeating() { return m_isHeating; };
 
     void setTemperature(float value);

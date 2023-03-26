@@ -9,8 +9,8 @@ Settings::Settings() {
     }
 
     if (!LittleFS.exists(MY_CONFIG_FILE)) {
-        snprintf(m_persistentData.tempHigh, 5, MY_CONFIG_TEMP_HIGH);
-        snprintf(m_persistentData.tempLow, 5, MY_CONFIG_TEMP_LOW);
+        snprintf(m_persistentData.tempSetpoint, 5, MY_CONFIG_TEMP_SETPOINT);
+        snprintf(m_persistentData.tempDelta, 5, MY_CONFIG_TEMP_DELTA);
         m_persistentData.sensorAddr = MY_CONFIG_TEMP_SENSOR_ADDR;
         m_persistentData.sensorResolution = MY_CONFIG_TEMP_SENSOR_RESOLUTION;
 

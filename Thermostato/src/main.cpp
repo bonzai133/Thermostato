@@ -87,8 +87,8 @@ void setup(void) {
 
   // Init heating control
   heatingControl = new HeatingControl();
-  heatingControl->setSetpointHigh(gp_settings->getTempHigh());
-  heatingControl->setSetpointLow(gp_settings->getTempLow());
+  heatingControl->setTempSetpoint(gp_settings->getTempSetpoint());
+  heatingControl->setTempDelta(gp_settings->getTempDelta());
 
   // Init Wifi
   mainScreen->progress("Wifi");
@@ -111,8 +111,8 @@ void loop(void) {
   webServer->serverCleanup();
 
   // Draw main screen
-  mainScreen->setSetpointHigh(gp_settings->getTempHigh());
-  mainScreen->setSetpointLow(gp_settings->getTempLow());
+  heatingControl->setTempSetpoint(gp_settings->getTempSetpoint());
+  heatingControl->setTempDelta(gp_settings->getTempDelta());
 
   temp = temperature->getTemperature();
   mainScreen->setTemperature(String(temp, 1));
