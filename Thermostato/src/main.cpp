@@ -83,7 +83,7 @@ void setup(void) {
   // Init temp
   mainScreen->progress("Temp sensor");
   temperature = new Temperature();
-  temperature->initSensor(0x18, 2);
+  temperature->initSensor(MY_CONFIG_TEMP_SENSOR_ADDR, MY_CONFIG_TEMP_SENSOR_RESOLUTION);
 
   // Init heating control
   heatingControl = new HeatingControl();
@@ -101,6 +101,8 @@ void setup(void) {
   // Init web server
   mainScreen->progress("Web Server");
   webServer = new WebServer();
+  webServer->setSettings(gp_settings);
+
   webServer->initServer();
   Serial.println("HTTP server started");
 }
@@ -111,8 +113,8 @@ void loop(void) {
   webServer->serverCleanup();
 
   // Draw main screen
-  heatingControl->setTempSetpoint(gp_settings->getTempSetpoint());
-  heatingControl->setTempDelta(gp_settings->getTempDelta());
+  mainScreen->setTempSetpoint(gp_settings->getTempSetpoint());
+  mainScreen->setTempDelta(gp_settings->getTempDelta());
 
   temp = temperature->getTemperature();
   mainScreen->setTemperature(String(temp, 1));

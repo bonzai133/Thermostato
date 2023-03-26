@@ -44,7 +44,9 @@ const char* password = "";
 - Contain Settings and webpage
 - Access to config file (debug)
   - http://192.168.x.y/config/thermostato.cfg
-- Remove /data/config/thermostato.cfg when building update to avoid erasing values set by user
+- TODO
+  - Remove /data/config/thermostato.cfg when building update to avoid erasing values set by user
+  - Use json file for simple modification (see arduinoJson example) ?
 
 # Display
 - Date and time
@@ -60,6 +62,12 @@ const char* password = "";
   - Configuration web page
   - Status web page
 
+# REST API
+- /api/config
+- TODO
+  - Check PUT method
+  - Other mode parameters
+
 # Relay control
 - TODO
   - Define and implement heating algorithm
@@ -67,3 +75,7 @@ const char* password = "";
 
 # Monitoring
   - Expose /metrics for Prometheus
+  - Temperature
+  - TODO
+    - isHeating
+    - ESP.getFreeHeap();

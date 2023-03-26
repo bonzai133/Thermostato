@@ -1,0 +1,2 @@
+curl --header "Content-Type: application/json" --request PUT --data '{"mode":"eco","confort":{"setpoint":"19.0","delta":"0.5"},"prog":{"setpoint":"0.0","delta":"0.0"},"eco":{"setpoint":"0.0","delta":"0.0"},"horsgel":{"setpoint":"0.0","delta":"0.0"}}' http://192.168.0.12/api/config
+

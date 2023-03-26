@@ -6,8 +6,8 @@
 class MainScreen {
   private:
     SH1106Wire *m_display;
-    String m_setPointHigh;
-    String m_setPointLow;
+    String m_tempSetpoint;
+    String m_tempDelta;
     String m_ipAddress;
     String m_temperature;
 
@@ -20,8 +20,8 @@ class MainScreen {
     void progress(String info);
     void initDisplay();
 
-    void setSetpointHigh(String value) { m_setPointHigh = value; };
-    void setSetpointLow(String value) { m_setPointLow = value; };
+    void setTempSetpoint(String value) { m_tempSetpoint = value; };
+    void setTempDelta(String value) { m_tempDelta = value; };
     void setIpAddress(String value) { m_ipAddress = value; };
     void setTemperature(String value) { m_temperature = value; };
 

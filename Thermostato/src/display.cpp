@@ -48,8 +48,8 @@ void MainScreen::drawScreen() {
   m_display->drawString(0, 0, getFormattedDate());
 
   // Setpoint temperature
-  m_display->drawString(96, 42, m_setPointHigh + "°C");
-  m_display->drawString(96, 54, m_setPointLow + "°C");
+  m_display->drawString(96, 42, m_tempSetpoint + "°C");
+  m_display->drawString(88, 54, "+/- " + m_tempDelta + "°C");
 
   // IP address
   m_display->drawString(0, 54, m_ipAddress);

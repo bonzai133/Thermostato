@@ -1,7 +1,10 @@
 #include "web_server.h"
 #include "LittleFS.h"
-#include <Arduino_JSON.h>
+// #include <Arduino_JSON.h>
 #include <AsyncElegantOTA.h>
+#include "config.h"
+#include <AsyncJson.h>
+#include <ArduinoJson.h>
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -14,13 +17,14 @@ int outputGPIOs[NUM_OUTPUTS] = {5, 16, 10, 12};
 
 
 String getOutputStates(){
-  JSONVar myArray;
-  for (int i =0; i<NUM_OUTPUTS; i++){
-    myArray["gpios"][i]["output"] = String(outputGPIOs[i]);
-    myArray["gpios"][i]["state"] = String(digitalRead(outputGPIOs[i]));
-  }
-  String jsonString = JSON.stringify(myArray);
-  return jsonString;
+  // JSONVar myArray;
+  // for (int i =0; i<NUM_OUTPUTS; i++){
+  //   myArray["gpios"][i]["output"] = String(outputGPIOs[i]);
+  //   myArray["gpios"][i]["state"] = String(digitalRead(outputGPIOs[i]));
+  // }
+  // String jsonString = JSON.stringify(myArray);
+  // return jsonString;
+  return "{}";
 }
 
 void notifyClients(String state) {
@@ -90,15 +94,46 @@ void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
   request->send(200, "text/plain; charset=utf-8", response);
 }
 
+void WebServer::HandleNotFound(AsyncWebServerRequest *request)
+{
+  request->send(404, "application/json", "{\"message\":\"Not found\"}");
+}
+
 void WebServer::HandleAbout(AsyncWebServerRequest *request) {
       request->send(LittleFS, "/about.html", "text/html", false,
                     std::bind(&WebServer::Processor, this, std::placeholders::_1));
 }
 
+void WebServer::HandleTemperature(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  DynamicJsonDocument json(100);
+  json["temperature"] = m_temperature;
+  serializeJson(json, *response);
+  request->send(response);
+}
+
+void WebServer::HandleGetConfig(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  DynamicJsonDocument json(1024);
+
+  json["mode"] = m_settings->getHeatingMode();
+  json["confort"]["setpoint"] = m_settings->getTempSetpoint();
+  json["confort"]["delta"] = m_settings->getTempDelta();
+  json["prog"]["setpoint"] = "0.0";
+  json["prog"]["delta"] = "0.0";
+  json["eco"]["setpoint"] = "0.0";
+  json["eco"]["delta"] = "0.0";
+  json["horsgel"]["setpoint"] = "0.0";
+  json["horsgel"]["delta"] = "0.0";
+
+  serializeJson(json, *response);
+  request->send(response);
+}
+
 String WebServer::Processor(const String& var)
 {
   if(var == "VERSION")
-    return F("0.1");
+    return F(VERSION);
   return String();
 }
 
@@ -118,11 +153,52 @@ void WebServer::initServer(void) {
 
   server.serveStatic("/", LittleFS, "/");
 
+  // Not found
+  server.onNotFound(std::bind(&WebServer::HandleNotFound, this, std::placeholders::_1));
+
   // Metrics
   server.on("/metrics", HTTP_GET, std::bind(&WebServer::HandleMetrics, this, std::placeholders::_1));
 
   // Web Page
   server.on("/about", HTTP_GET, std::bind(&WebServer::HandleAbout, this, std::placeholders::_1));
+
+  // API
+  server.on("/api/temperature", HTTP_GET, std::bind(&WebServer::HandleTemperature, this, std::placeholders::_1));
+  server.on("/api/config", HTTP_GET, std::bind(&WebServer::HandleGetConfig, this, std::placeholders::_1));
+  
+  // TODO: how to use WebServer::HandlePutConfig ?
+  AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/config", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+    JsonObject jsonObj = json.as<JsonObject>();
+    bool isValid = true;
+
+    // TODO: Check method == PUT
+
+    // Save config
+    if(jsonObj.containsKey("mode")) {
+      m_settings->setHeatingMode(jsonObj["mode"]);
+    }
+    else {
+      isValid = false;
+    }
+
+    if(jsonObj.containsKey("confort")) {
+      if(jsonObj["confort"].containsKey("setpoint") and jsonObj["confort"].containsKey("delta")) {
+        m_settings->setTempSetpoint(jsonObj["confort"]["setpoint"]);
+        m_settings->setTempDelta(jsonObj["confort"]["delta"]);
+      } else {
+        isValid = false;
+      }
+    } else {
+      isValid = false;
+    }
+    if (isValid) {
+      m_settings->commit();
+      request->send(200, "application/json", "{\"message\":\"OK\"}");
+    } else {
+      request->send(400, "application/json", "{\"message\":\"Invalid parameters\"}");
+    }
+  });
+  server.addHandler(handler);
 
   // Start ElegantOTA
   AsyncElegantOTA.begin(&server);
@@ -130,6 +206,3 @@ void WebServer::initServer(void) {
   // Start server
   server.begin();
 }
-
-
-
