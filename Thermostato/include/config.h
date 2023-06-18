@@ -12,7 +12,10 @@
 #define MY_CONFIG_PATH "/config"
 #define MY_CONFIG_FILE "/config/thermostato.cfg"
 
-#define MY_CONFIG_TEMP_SETPOINT "19.0"
+#define MY_CONFIG_TEMP_CONFORT "19.0"
+#define MY_CONFIG_TEMP_ECO "16.0"
+#define MY_CONFIG_TEMP_HORSGEL "6.0"
+
 #define MY_CONFIG_TEMP_DELTA "0.5"
 #define MY_CONFIG_HEATING_MODE 'E'
 

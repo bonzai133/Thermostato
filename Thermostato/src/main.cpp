@@ -109,12 +109,17 @@ void setup(void) {
 
 void loop(void) {
   float temp;
+
   // Websocket cleanup
   webServer->serverCleanup();
 
-  // Draw main screen
+  // Update paramters
+  // TODO: refactor to share settings in other classes
   mainScreen->setTempSetpoint(gp_settings->getTempSetpoint());
   mainScreen->setTempDelta(gp_settings->getTempDelta());
+
+  heatingControl->setTempSetpoint(gp_settings->getTempSetpoint());
+  heatingControl->setTempDelta(gp_settings->getTempDelta());
 
   temp = temperature->getTemperature();
   mainScreen->setTemperature(String(temp, 1));
@@ -123,7 +128,9 @@ void loop(void) {
 
   // Update heat mode icon
   mainScreen->setIsHeating(heatingControl->isHeating());
+  webServer->setIsHeating(heatingControl->isHeating());
 
+  // Draw main screen
   mainScreen->drawScreen();
 
   delay(15000);

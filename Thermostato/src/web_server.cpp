@@ -112,19 +112,36 @@ void WebServer::HandleTemperature(AsyncWebServerRequest *request) {
   request->send(response);
 }
 
+void WebServer::HandleHomeStatus(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  DynamicJsonDocument json(100);
+  json["temperature"] = m_temperature;
+  json["mode"] = m_settings->getHeatingMode();
+  
+  json["consigne"] = m_settings->getTempSetpoint();
+  json["delta"] = m_settings->getTempDelta();
+
+  if (m_isHeating == true) {
+    json["pump"] = "On";
+  } else {
+    json["pump"] = "Off";
+  }
+
+  serializeJson(json, *response);
+  request->send(response);
+}
+
 void WebServer::HandleGetConfig(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   DynamicJsonDocument json(1024);
 
   json["mode"] = m_settings->getHeatingMode();
-  json["confort"]["setpoint"] = m_settings->getTempSetpoint();
-  json["confort"]["delta"] = m_settings->getTempDelta();
-  json["prog"]["setpoint"] = "0.0";
-  json["prog"]["delta"] = "0.0";
-  json["eco"]["setpoint"] = "0.0";
-  json["eco"]["delta"] = "0.0";
-  json["horsgel"]["setpoint"] = "0.0";
-  json["horsgel"]["delta"] = "0.0";
+  json["confort"] = m_settings->getTempConfort();
+  json["deltaConfort"] = m_settings->getTempDeltaConfort();
+  json["eco"] = m_settings->getTempEco();
+  json["deltaEco"] = m_settings->getTempDeltaEco();
+  json["horsGel"] = m_settings->getTempHorsGel();
+  json["deltaHorsGel"] = m_settings->getTempDeltaHorsGel();
 
   serializeJson(json, *response);
   request->send(response);
@@ -148,7 +165,7 @@ void WebServer::initServer(void) {
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(LittleFS, "/index.html", "text/html", false);
+    request->send(LittleFS, "/home.html", "text/html", false);
   });
 
   server.serveStatic("/", LittleFS, "/");
@@ -160,10 +177,11 @@ void WebServer::initServer(void) {
   server.on("/metrics", HTTP_GET, std::bind(&WebServer::HandleMetrics, this, std::placeholders::_1));
 
   // Web Page
-  server.on("/about", HTTP_GET, std::bind(&WebServer::HandleAbout, this, std::placeholders::_1));
+  server.on("/about.html", HTTP_GET, std::bind(&WebServer::HandleAbout, this, std::placeholders::_1));
 
   // API
   server.on("/api/temperature", HTTP_GET, std::bind(&WebServer::HandleTemperature, this, std::placeholders::_1));
+  server.on("/api/homeStatus", HTTP_GET, std::bind(&WebServer::HandleHomeStatus, this, std::placeholders::_1));
   server.on("/api/config", HTTP_GET, std::bind(&WebServer::HandleGetConfig, this, std::placeholders::_1));
   
   // TODO: how to use WebServer::HandlePutConfig ?
@@ -181,16 +199,27 @@ void WebServer::initServer(void) {
       isValid = false;
     }
 
-    if(jsonObj.containsKey("confort")) {
-      if(jsonObj["confort"].containsKey("setpoint") and jsonObj["confort"].containsKey("delta")) {
-        m_settings->setTempSetpoint(jsonObj["confort"]["setpoint"]);
-        m_settings->setTempDelta(jsonObj["confort"]["delta"]);
-      } else {
-        isValid = false;
-      }
+    if(jsonObj.containsKey("confort") && jsonObj.containsKey("deltaConfort") ) {
+      m_settings->setTempConfort(jsonObj["confort"]);
+      m_settings->setTempDeltaConfort(jsonObj["deltaConfort"]);
     } else {
       isValid = false;
     }
+
+    if(jsonObj.containsKey("eco") && jsonObj.containsKey("deltaEco") ) {
+      m_settings->setTempEco(jsonObj["eco"]);
+      m_settings->setTempDeltaEco(jsonObj["deltaEco"]);
+    } else {
+      isValid = false;
+    }
+
+    if(jsonObj.containsKey("horsGel") && jsonObj.containsKey("deltaHorsGel") ) {
+      m_settings->setTempHorsGel(jsonObj["horsGel"]);
+      m_settings->setTempDeltaHorsGel(jsonObj["deltaHorsGel"]);
+    } else {
+      isValid = false;
+    }
+
     if (isValid) {
       m_settings->commit();
       request->send(200, "application/json", "{\"message\":\"OK\"}");

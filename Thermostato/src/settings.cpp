@@ -9,8 +9,14 @@ Settings::Settings() {
     }
 
     if (!LittleFS.exists(MY_CONFIG_FILE)) {
-        snprintf(m_persistentData.tempSetpoint, 5, MY_CONFIG_TEMP_SETPOINT);
-        snprintf(m_persistentData.tempDelta, 5, MY_CONFIG_TEMP_DELTA);
+        snprintf(m_persistentData.tempConfort, 5, MY_CONFIG_TEMP_CONFORT);
+        snprintf(m_persistentData.tempEco, 5, MY_CONFIG_TEMP_ECO);
+        snprintf(m_persistentData.tempHorsGel, 5, MY_CONFIG_TEMP_HORSGEL);
+
+        snprintf(m_persistentData.tempDeltaConfort, 5, MY_CONFIG_TEMP_DELTA);
+        snprintf(m_persistentData.tempDeltaEco, 5, MY_CONFIG_TEMP_DELTA);
+        snprintf(m_persistentData.tempDeltaHorsGel, 5, MY_CONFIG_TEMP_DELTA);
+        
         m_persistentData.heatingMode = MY_CONFIG_HEATING_MODE;
 
         SaveConfig();

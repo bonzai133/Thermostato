@@ -46,6 +46,7 @@ const char* password = "";
   - http://192.168.x.y/config/thermostato.cfg
 - TODO
   - Remove /data/config/thermostato.cfg when building update to avoid erasing values set by user
+  - When /data/config is empty in little.fs, thermostato.cfg is deleted. How to keep it ?
   - Use json file for simple modification (see arduinoJson example) ?
 
 # Display
@@ -56,17 +57,16 @@ const char* password = "";
 - High and low temperature setpoint
 
 # Web page
-- Example with control of GPIO with Websocket
-- About page using templating
-- TODO: replace by
-  - Configuration web page
-  - Status web page
+- Home
+  - TODO: Replace mode from API by label
+- Config
+- Advanced config: TODO
+- About: Add link to update page
 
 # REST API
 - /api/config
 - TODO
   - Check PUT method
-  - Other mode parameters
 
 # Relay control
 - TODO
