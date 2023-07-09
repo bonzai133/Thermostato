@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-void init_time();
+void init_time(String timezone, String ntpServer);
 String getFormattedTime();
 String getFormattedDate();
 

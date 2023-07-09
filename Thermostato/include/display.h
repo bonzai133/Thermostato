@@ -10,8 +10,6 @@ class MainScreen {
   private:
     SH1106Wire *m_display;
 
-    String m_ipAddress;
-
     Settings* m_settings;
     HeatingControl* m_heatingControl;
 
@@ -21,8 +19,6 @@ class MainScreen {
 
     void progress(String info);
     void initDisplay();
-
-    void setIpAddress(String value) { m_ipAddress = value; };
 
     void setSettings(Settings *settings) { m_settings = settings; }
     void setHeatingControl(HeatingControl *heatingControl) { m_heatingControl = heatingControl; }

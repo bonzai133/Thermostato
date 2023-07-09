@@ -58,7 +58,7 @@ void init_wifi(void) {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  mainScreen->setIpAddress(WiFi.localIP().toString());
+  gp_settings->setIpAddress(WiFi.localIP().toString());
 }
 
 void setup(void) {
@@ -94,7 +94,7 @@ void setup(void) {
 
   // Init NTP Client
   mainScreen->progress("Time");
-  init_time();
+  init_time(gp_settings->getTimezone(), gp_settings->getNtpServer());
 
   // Init web server
   mainScreen->progress("Web Server");

@@ -3,6 +3,7 @@
 // #include <Arduino_JSON.h>
 #include <AsyncElegantOTA.h>
 #include "config.h"
+#include "time_utils.h"
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
 
@@ -175,6 +176,22 @@ void WebServer::HandleGetConfig(AsyncWebServerRequest *request) {
   request->send(response);
 }
 
+void WebServer::HandleGetAdvancedConfig(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  DynamicJsonDocument json(1024);
+
+  json["date"] = getFormattedDate();
+  json["time"] = getFormattedTime();
+  json["ipAddress"] = m_settings->getIpAddress();
+  json["timezone"] = m_settings->getTimezone();
+  json["ntpServer"] = m_settings->getNtpServer();
+
+  json["lcdContrast"] = String(m_settings->getContrast());
+
+  serializeJson(json, *response);
+  request->send(response);
+}
+
 String WebServer::Processor(const String& var)
 {
   if(var == "VERSION")
@@ -211,7 +228,8 @@ void WebServer::initServer(void) {
   server.on("/api/temperature", HTTP_GET, std::bind(&WebServer::HandleTemperature, this, std::placeholders::_1));
   server.on("/api/homeStatus", HTTP_GET, std::bind(&WebServer::HandleHomeStatus, this, std::placeholders::_1));
   server.on("/api/config", HTTP_GET, std::bind(&WebServer::HandleGetConfig, this, std::placeholders::_1));
-  
+  server.on("/api/advancedConfig", HTTP_GET, std::bind(&WebServer::HandleGetAdvancedConfig, this, std::placeholders::_1));
+
   // TODO: how to use WebServer::HandlePutConfig ?
   AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/config", [this](AsyncWebServerRequest *request, JsonVariant &json) {
     JsonObject jsonObj = json.as<JsonObject>();
@@ -256,6 +274,29 @@ void WebServer::initServer(void) {
     }
   });
   server.addHandler(handler);
+
+  AsyncCallbackJsonWebHandler* handler2 = new AsyncCallbackJsonWebHandler("/api/advancedConfig", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+    JsonObject jsonObj = json.as<JsonObject>();
+    bool isValid = true;
+
+    // TODO: Check method == PUT
+
+    // Save config
+    if(jsonObj.containsKey("lcdContrast")) {
+      m_settings->setContrast(jsonObj["lcdContrast"]);
+    }
+    else {
+      isValid = false;
+    }
+
+    if (isValid) {
+      m_settings->commit();
+      request->send(200, "application/json", "{\"message\":\"OK\"}");
+    } else {
+      request->send(400, "application/json", "{\"message\":\"Invalid parameters\"}");
+    }
+  });
+  server.addHandler(handler2);
 
   // Start ElegantOTA
   AsyncElegantOTA.begin(&server);

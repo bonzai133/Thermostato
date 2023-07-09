@@ -38,7 +38,7 @@ void MainScreen::progress(String info) {
 
 void MainScreen::drawScreen() {
   m_display->clear();
-  m_display->setBrightness(100);
+  m_display->setBrightness(m_settings->getContrast());
 
   m_display->setTextAlignment(TEXT_ALIGN_LEFT);
 
@@ -52,7 +52,7 @@ void MainScreen::drawScreen() {
   m_display->drawString(88, 54, "+/- " + m_settings->getTempDelta() + "°C");
 
   // IP address
-  m_display->drawString(0, 54, m_ipAddress);
+  m_display->drawString(0, 54, m_settings->getIpAddress());
 
   m_display->setFont(ArialMT_Plain_16);
   // Hour

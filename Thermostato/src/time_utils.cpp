@@ -2,14 +2,13 @@
 
 #include <Arduino.h>
 #include <TZ.h>
-#include "config.h"
 #include "time.h"
 
 const char day_week_fr[7][4] = {"Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"};
 const char month_fr[12][5] = {"Jan", "Fév", "Mar", "Avr", "Mai", "Jui", "Jul", "Aou", "Sep", "Oct", "Nov", "Déc"};
 
-void init_time() {
-  configTime(MY_TZ, NTP_SERVER);
+void init_time(String timezone, String ntpServer) {
+  configTime(timezone.c_str(), ntpServer);
 
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)) {

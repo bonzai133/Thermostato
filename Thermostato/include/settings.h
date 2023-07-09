@@ -18,6 +18,11 @@ class Settings {
   private:
     struct persistentData m_persistentData;
 
+    String m_ipAddress;
+    String m_ntpServer;
+    const char *m_timezone;
+    int m_contrast;
+
   public:
     Settings();
     ~Settings();
@@ -95,6 +100,14 @@ class Settings {
     void setTempDeltaHorsGel(String value) { snprintf(m_persistentData.tempDeltaHorsGel, 5, value.c_str()); };
 
     void commit() { SaveConfig(); }
+
+    String getIpAddress() { return m_ipAddress; };
+    String getNtpServer() { return m_ntpServer; };
+    String getTimezone() { return m_timezone; };
+    int getContrast() { return m_contrast; };
+
+    void setIpAddress(String ipAddress) { m_ipAddress = ipAddress; };
+    void setContrast(int value) {  m_contrast = value; };
 
 };
 #endif

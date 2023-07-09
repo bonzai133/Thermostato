@@ -62,8 +62,12 @@ const char* password = "";
 - Home
   - TODO: Replace mode from API by label
 - Config
-- Advanced config: TODO
-- About: Add link to update page
+- Advanced config: 
+  - TODO
+    - Persist values
+    - Display timezone + date
+- About
+  - Better css
 
 # REST API
 - /api/config

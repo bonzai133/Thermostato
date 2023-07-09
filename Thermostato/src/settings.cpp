@@ -1,9 +1,16 @@
 
 #include "settings.h"
 #include "config.h"
+#include <TZ.h>
 #include <LittleFS.h>
 
 Settings::Settings() {
+    // Init members
+    m_ntpServer = NTP_SERVER;
+    m_timezone = MY_TZ;
+    m_contrast = 128;
+
+    // Init config on LittleFS
     if (!LittleFS.exists(MY_CONFIG_PATH)) {
         LittleFS.mkdir(MY_CONFIG_PATH);
     }

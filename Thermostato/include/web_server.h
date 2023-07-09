@@ -21,6 +21,7 @@ class WebServer {
     void HandleTemperature(AsyncWebServerRequest *request);
     void HandleHomeStatus(AsyncWebServerRequest *request);
     void HandleGetConfig(AsyncWebServerRequest *request);
+    void HandleGetAdvancedConfig(AsyncWebServerRequest *request);
 
     String Processor(const String& var);
 
