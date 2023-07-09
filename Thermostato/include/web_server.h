@@ -5,12 +5,14 @@
 #include <ESPAsyncWebServer.h>
 #include "settings.h"
 #include "AsyncJson.h"
+#include "settings.h"
+#include "heating.h"
+
 
 class WebServer {
   private:
-    float m_temperature = 0.00;
     Settings *m_settings;
-    bool m_isHeating;
+    HeatingControl *m_heatingControl;
 
     void initWebSocket(void);
     void HandleMetrics(AsyncWebServerRequest *request);
@@ -23,15 +25,11 @@ class WebServer {
     String Processor(const String& var);
 
   public:
-    WebServer();
+    WebServer(Settings* settings, HeatingControl* heatingControl);
     ~WebServer();
 
     void initServer();
     void serverCleanup();
-
-    void setSettings(Settings *settings) { m_settings = settings; };
-    void setTemperature(float value) { m_temperature = value; };
-    void setIsHeating(bool value) { m_isHeating = value; }
 
 };
 

@@ -64,7 +64,9 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
   }
 }
 
-WebServer::WebServer() {
+WebServer::WebServer(Settings* settings, HeatingControl* heatingControl) {
+  m_settings = settings;
+  m_heatingControl = heatingControl;
 
 }
 
@@ -87,7 +89,7 @@ void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
   response += "# HELP thermostato_temperature_celsius Current temperature in celsius.\n";
   response += "# TYPE thermostato_temperature_celsius gauge\n";
   response += "thermostato_temperature_celsius ";
-  response += String(m_temperature, 2);
+  response += m_heatingControl->getTemperature(2);
   response += "\n";
 
   // Send response
@@ -107,7 +109,7 @@ void WebServer::HandleAbout(AsyncWebServerRequest *request) {
 void WebServer::HandleTemperature(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   DynamicJsonDocument json(100);
-  json["temperature"] = m_temperature;
+  json["temperature"] = m_heatingControl->getTemperature();
   serializeJson(json, *response);
   request->send(response);
 }
@@ -115,13 +117,13 @@ void WebServer::HandleTemperature(AsyncWebServerRequest *request) {
 void WebServer::HandleHomeStatus(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   DynamicJsonDocument json(100);
-  json["temperature"] = m_temperature;
+  json["temperature"] = m_heatingControl->getTemperature();
   json["mode"] = m_settings->getHeatingMode();
   
   json["consigne"] = m_settings->getTempSetpoint();
   json["delta"] = m_settings->getTempDelta();
 
-  if (m_isHeating == true) {
+  if (m_heatingControl->isHeating() == true) {
     json["pump"] = "On";
   } else {
     json["pump"] = "Off";

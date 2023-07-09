@@ -48,8 +48,8 @@ void MainScreen::drawScreen() {
   m_display->drawString(0, 0, getFormattedDate());
 
   // Setpoint temperature
-  m_display->drawString(96, 42, m_tempSetpoint + "°C");
-  m_display->drawString(88, 54, "+/- " + m_tempDelta + "°C");
+  m_display->drawString(96, 42, m_settings->getTempSetpoint() + "°C");
+  m_display->drawString(88, 54, "+/- " + m_settings->getTempDelta() + "°C");
 
   // IP address
   m_display->drawString(0, 54, m_ipAddress);
@@ -60,10 +60,10 @@ void MainScreen::drawScreen() {
 
   m_display->setFont(ArialMT_Plain_24);
   // current temperature
-  m_display->drawString(0, 20, m_temperature + "°C");
+  m_display->drawString(0, 20, m_heatingControl->getTemperature(1) + "°C");
 
   // Draw icons
-  if(m_isHeating) {
+  if(m_heatingControl->isHeating()) {
     m_display->drawXbm(105, 22, 16, 16, sun_icon);
   }
 

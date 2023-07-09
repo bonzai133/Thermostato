@@ -86,9 +86,7 @@ void setup(void) {
   temperature->initSensor(MY_CONFIG_TEMP_SENSOR_ADDR, MY_CONFIG_TEMP_SENSOR_RESOLUTION);
 
   // Init heating control
-  heatingControl = new HeatingControl();
-  heatingControl->setTempSetpoint(gp_settings->getTempSetpoint());
-  heatingControl->setTempDelta(gp_settings->getTempDelta());
+  heatingControl = new HeatingControl(gp_settings, temperature);
 
   // Init Wifi
   mainScreen->progress("Wifi");
@@ -100,35 +98,22 @@ void setup(void) {
 
   // Init web server
   mainScreen->progress("Web Server");
-  webServer = new WebServer();
-  webServer->setSettings(gp_settings);
+  webServer = new WebServer(gp_settings, heatingControl);
 
   webServer->initServer();
   Serial.println("HTTP server started");
+
+  // Give refrence to main screen
+  mainScreen->setSettings(gp_settings);
+  mainScreen->setHeatingControl(heatingControl);
 }
 
 void loop(void) {
-  float temp;
-
   // Websocket cleanup
   webServer->serverCleanup();
 
-  // Update paramters
-  // TODO: refactor to share settings in other classes
-  mainScreen->setTempSetpoint(gp_settings->getTempSetpoint());
-  mainScreen->setTempDelta(gp_settings->getTempDelta());
-
-  heatingControl->setTempSetpoint(gp_settings->getTempSetpoint());
-  heatingControl->setTempDelta(gp_settings->getTempDelta());
-
-  temp = temperature->getTemperature();
-  mainScreen->setTemperature(String(temp, 1));
-  heatingControl->setTemperature(temp);
-  webServer->setTemperature(temp);
-
-  // Update heat mode icon
-  mainScreen->setIsHeating(heatingControl->isHeating());
-  webServer->setIsHeating(heatingControl->isHeating());
+  // Refresh external values (setpoint, current temp)
+  heatingControl->refreshExtValues();
 
   // Draw main screen
   mainScreen->drawScreen();

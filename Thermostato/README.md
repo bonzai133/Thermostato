@@ -55,6 +55,8 @@ const char* password = "";
 - Heating mode
 - IP Address
 - High and low temperature setpoint
+- TODO
+  - Replace Sun icon by Pump icon
 
 # Web page
 - Home

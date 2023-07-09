@@ -2,12 +2,14 @@
 #include "config.h"
 #include "heating.h"
 
-HeatingControl::HeatingControl() {
-    // Init values
-    m_tempSetpoint=19.0;
-    m_tempDelta=0.5;
 
-    m_temperature=19.2;
+HeatingControl::HeatingControl(Settings* settings, Temperature* tempSensor) {
+    // Init references
+    m_settings = settings;
+    m_tempSensor = tempSensor;
+
+    // Init values
+    refreshExtValues();
 
     m_isHeating=false;
 
@@ -20,16 +22,18 @@ HeatingControl::~HeatingControl() {
 }
 
 // Set temperature and update heating mode
-void HeatingControl::setTemperature(float value)
+void HeatingControl::refreshExtValues()
 {
-    m_temperature = value;
+    setTempSetpoint(m_settings->getTempSetpoint());
+    setTempDelta(m_settings->getTempDelta());
+    m_temperature = m_tempSensor->getTemperature();
 
-    update();
+    calculateState();
 
 }
 
 // Update heating state
-void HeatingControl::update(void) {
+void HeatingControl::calculateState(void) {
     float delta = m_temperature - m_tempSetpoint;
     // m_isHeating update
     if(m_isHeating) {
