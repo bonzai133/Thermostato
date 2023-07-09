@@ -86,11 +86,37 @@ void WebServer::initWebSocket(void) {
 void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
   String response = "";
 
-  response += "# HELP thermostato_temperature_celsius Current temperature in celsius.\n";
+  response += "# HELP thermostato_heating_mode Heating mode: Prog, Confort, Eco, Horgel.\n";
+  response += "# TYPE thermostato_heating_mode gauge\n";
+  response += "thermostato_heating_mode ";
+  response += m_settings->getHeatingMode();
+  response += "\n";
+
+  response += "# HELP thermostato_temperature_setpoint Temperature setpoint for current mode in Celsius.\n";
+  response += "# TYPE thermostato_temperature_setpoint gauge\n";
+  response += "thermostato_temperature_setpoint ";
+  response += m_settings->getTempSetpoint();
+  response += "\n";
+
+  response += "# HELP thermostato_temperature_delta Temperature delta for current mode.\n";
+  response += "# TYPE thermostato_temperature_delta gauge\n";
+  response += "thermostato_temperature_delta ";
+  response += m_settings->getTempDelta();
+  response += "\n";
+
+  response += "# HELP thermostato_temperature_celsius Current temperature in Celsius.\n";
   response += "# TYPE thermostato_temperature_celsius gauge\n";
   response += "thermostato_temperature_celsius ";
   response += m_heatingControl->getTemperature(2);
   response += "\n";
+
+  response += "# HELP thermostato_pump_status Pump status on (1) / off (0).\n";
+  response += "# TYPE thermostato_pump_status gauge\n";
+  response += "thermostato_pump_status ";
+  response += m_heatingControl->isHeating();
+  response += "\n";
+
+
 
   // Send response
   request->send(200, "text/plain; charset=utf-8", response);
