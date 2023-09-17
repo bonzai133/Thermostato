@@ -2,6 +2,7 @@
 #define _settings_h_
 
 #include <Arduino.h>
+#include "heating_periods.h"
 
 struct persistentData {
   char tempConfort[5];
@@ -17,6 +18,7 @@ struct persistentData {
 class Settings {
   private:
     struct persistentData m_persistentData;
+    HeatingPeriods m_HeatingPeriods;
 
     String m_ipAddress;
     String m_ntpServer;
@@ -62,7 +64,8 @@ class Settings {
         temp = m_persistentData.tempHorsGel;
       }
 
-      return temp;    }
+      return temp;
+    }
 
     String getTempDelta() {
       String delta;
