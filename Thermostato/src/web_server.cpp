@@ -192,6 +192,17 @@ void WebServer::HandleGetAdvancedConfig(AsyncWebServerRequest *request) {
   request->send(response);
 }
 
+void WebServer::HandleGetTimeSlots(AsyncWebServerRequest *request) {
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  DynamicJsonDocument doc(1024);
+  JsonArray tsArray = doc.createNestedArray("timeSlots");
+
+  m_settings->getTimeSlots(tsArray);
+
+  serializeJson(doc, *response);
+  request->send(response);
+}
+
 String WebServer::Processor(const String& var)
 {
   if(var == "VERSION")
@@ -229,6 +240,7 @@ void WebServer::initServer(void) {
   server.on("/api/homeStatus", HTTP_GET, std::bind(&WebServer::HandleHomeStatus, this, std::placeholders::_1));
   server.on("/api/config", HTTP_GET, std::bind(&WebServer::HandleGetConfig, this, std::placeholders::_1));
   server.on("/api/advancedConfig", HTTP_GET, std::bind(&WebServer::HandleGetAdvancedConfig, this, std::placeholders::_1));
+  server.on("/api/timeSlots", HTTP_GET, std::bind(&WebServer::HandleGetTimeSlots, this, std::placeholders::_1));
 
   // TODO: how to use WebServer::HandlePutConfig ?
   AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/config", [this](AsyncWebServerRequest *request, JsonVariant &json) {
@@ -297,6 +309,29 @@ void WebServer::initServer(void) {
     }
   });
   server.addHandler(handler2);
+
+
+  AsyncCallbackJsonWebHandler* handler3 = new AsyncCallbackJsonWebHandler("/api/timeSlots", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+    JsonObject jsonObj = json.as<JsonObject>();
+    bool isValid = true;
+
+    // Save config
+    if(jsonObj.containsKey("timeSlots")) {
+      m_settings->setTimeSlots(jsonObj["timeSlots"]);
+    }
+    else {
+      isValid = false;
+    }
+
+    if (isValid) {
+      m_settings->commit();
+      request->send(200, "application/json", "{\"message\":\"OK\"}");
+    } else {
+      request->send(400, "application/json", "{\"message\":\"Invalid parameters\"}");
+    }
+  });
+  server.addHandler(handler3);
+
 
   // Start ElegantOTA
   AsyncElegantOTA.begin(&server);

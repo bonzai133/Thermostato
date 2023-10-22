@@ -3,6 +3,7 @@
 #include "config.h"
 #include <TZ.h>
 #include <LittleFS.h>
+#include <ArduinoJson.h>
 #include "time_utils.h"
 
 
@@ -87,4 +88,29 @@ String Settings::getTempDelta() {
     }
 
     return delta;
+}
+
+// TODO
+void Settings::getTimeSlots(JsonArray& tsArray) {
+  // Add objects to the JSON array
+  for (int i = 0; i < 3; ++i) {
+    // Create a JSON object within the array
+    JsonObject obj = tsArray.createNestedObject();
+
+    // Add data to the object
+    obj["day"] = "Mon";
+    JsonArray times = obj.createNestedArray("times");
+    for (int i = 0; i < 2; ++i) {
+        // Create a JSON object within the array
+        JsonObject time = times.createNestedObject();
+        time["start"] = "00:00";
+        time["end"] = "00:00";
+
+      }
+  }
+}
+
+// TODO
+void Settings::setTimeSlots(JsonArray tsArray) {
+
 }

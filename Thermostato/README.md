@@ -79,8 +79,8 @@ const char* password = "";
   - Define and implement heating algorithm
   - Configuration of heating periods
     - [x] POST / GET app.py + html
-    - [ ] POST / GET web server
-    - [ ] Persist Load / Save
+    - [x] POST / GET web server
+    - [ ] Persist Load / Save (settings::getTimeSlot setTimeSlot)
 
 # Monitoring
   - Expose /metrics for Prometheus

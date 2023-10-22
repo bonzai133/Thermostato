@@ -22,6 +22,7 @@ class WebServer {
     void HandleHomeStatus(AsyncWebServerRequest *request);
     void HandleGetConfig(AsyncWebServerRequest *request);
     void HandleGetAdvancedConfig(AsyncWebServerRequest *request);
+    void HandleGetTimeSlots(AsyncWebServerRequest *request);
 
     String Processor(const String& var);
 

@@ -2,6 +2,7 @@
 #define _settings_h_
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include "heating_periods.h"
 
 struct persistentData {
@@ -81,5 +82,7 @@ class Settings {
     void setIpAddress(String ipAddress) { m_ipAddress = ipAddress; };
     void setContrast(int value) {  m_contrast = value; };
 
+    void getTimeSlots(JsonArray& tsArray);
+    void setTimeSlots(JsonArray tsArray);
 };
 #endif
