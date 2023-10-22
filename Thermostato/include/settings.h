@@ -50,39 +50,8 @@ class Settings {
     String getTempHorsGel() { return m_persistentData.tempHorsGel; };
     String getTempDeltaHorsGel() { return m_persistentData.tempDeltaHorsGel; };
 
-    String getTempSetpoint() {
-      String temp;
-
-      if (m_persistentData.heatingMode == 'P') {
-        // TODO: check current prog mode
-        temp = m_persistentData.tempEco;
-      } else if (m_persistentData.heatingMode == 'C') {
-        temp = m_persistentData.tempConfort;
-      } else if (m_persistentData.heatingMode == 'E') {
-        temp = m_persistentData.tempEco;
-      } else if (m_persistentData.heatingMode == 'H') {
-        temp = m_persistentData.tempHorsGel;
-      }
-
-      return temp;
-    }
-
-    String getTempDelta() {
-      String delta;
-
-      if (m_persistentData.heatingMode == 'P') {
-        // TODO: check current prog mode
-        delta = m_persistentData.tempDeltaEco;
-      } else if (m_persistentData.heatingMode == 'C') {
-        delta = m_persistentData.tempDeltaConfort;
-      } else if (m_persistentData.heatingMode == 'E') {
-        delta = m_persistentData.tempDeltaEco;
-      } else if (m_persistentData.heatingMode == 'H') {
-        delta = m_persistentData.tempDeltaHorsGel;
-      }
-
-      return delta;
-    }
+    String getTempSetpoint();
+    String getTempDelta();
 
     void setHeatingMode(String value) {
       char mode = 'E';

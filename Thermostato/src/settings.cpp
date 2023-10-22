@@ -3,6 +3,8 @@
 #include "config.h"
 #include <TZ.h>
 #include <LittleFS.h>
+#include "time_utils.h"
+
 
 Settings::Settings() {
     // Init members
@@ -40,4 +42,49 @@ void Settings::SaveConfig() {
     File configFile = LittleFS.open(MY_CONFIG_FILE, "w");
     configFile.write((char *)&m_persistentData, sizeof (persistentData));
     configFile.close();
+}
+
+String Settings::getTempSetpoint() {
+    String temp;
+
+    if (m_persistentData.heatingMode == 'P') {
+        // Check current prog mode
+        day_hour_minute dhm;
+        if (getDate(&dhm) && m_HeatingPeriods.checkPeriod(dhm.day, dhm.hour, dhm.minute)) {
+            temp = m_persistentData.tempConfort;
+        } else {
+            temp = m_persistentData.tempEco;
+        }
+    } else if (m_persistentData.heatingMode == 'C') {
+    temp = m_persistentData.tempConfort;
+    } else if (m_persistentData.heatingMode == 'E') {
+    temp = m_persistentData.tempEco;
+    } else if (m_persistentData.heatingMode == 'H') {
+    temp = m_persistentData.tempHorsGel;
+    }
+
+    return temp;
+}
+
+String Settings::getTempDelta() {
+    String delta;
+
+    if (m_persistentData.heatingMode == 'P') {
+         // Check current prog mode
+        day_hour_minute dhm;
+        if (getDate(&dhm) && m_HeatingPeriods.checkPeriod(dhm.day, dhm.hour, dhm.minute)) {
+            delta = m_persistentData.tempDeltaConfort;
+        } else {
+            delta = m_persistentData.tempDeltaEco;
+        }
+           
+    } else if (m_persistentData.heatingMode == 'C') {
+    delta = m_persistentData.tempDeltaConfort;
+    } else if (m_persistentData.heatingMode == 'E') {
+    delta = m_persistentData.tempDeltaEco;
+    } else if (m_persistentData.heatingMode == 'H') {
+    delta = m_persistentData.tempDeltaHorsGel;
+    }
+
+    return delta;
 }

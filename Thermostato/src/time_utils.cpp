@@ -57,3 +57,18 @@ String getFormattedDate() {
   }
   return my_date;
 }
+
+bool getDate(day_hour_minute *dhm) {
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+    return false;
+  } else {
+    dhm->day = timeinfo.tm_wday;
+    dhm->hour = timeinfo.tm_hour;
+    dhm->minute = timeinfo.tm_min;
+  }
+
+  return true;
+
+}

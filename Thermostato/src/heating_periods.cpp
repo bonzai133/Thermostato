@@ -38,14 +38,14 @@ bool HeatingPeriods::addPeriod(int dayOfWeek, int startHour, int startMinute, in
     return true;
 }
 
-// Return true is inside an existing period
+// Return true if inside an existing period
 bool HeatingPeriods::checkPeriod(int dayOfWeek, int hour, int minute) {
     if (dayOfWeek >= 0 && dayOfWeek < 7 && hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
         int nbUse = m_dailyPeriods[dayOfWeek].nbUsed;
         for(int i = 0; i < nbUse; i++) {
             HeatingPeriod period = m_dailyPeriods[dayOfWeek].periods[i];
 
-            int t = hour*60+minute;
+            int t = hour * 60 + minute;
             int start = period.startHour * 60 + period.startMinute;
             int end = period.endHour * 60 + period.endMinute;
 
