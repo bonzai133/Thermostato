@@ -1,31 +1,32 @@
 #ifndef _heating_periods_h_
 #define _heating_periods_h_
 
+#include "config.h"
+
 // Represents a single heating period
 struct HeatingPeriod {
-    int startHour;
-    int startMinute;
-    int endHour;
-    int endMinute;
+    uint startHour;
+    uint startMinute;
+    uint endHour;
+    uint endMinute;
 };
 
 struct DailyPeriod {
-  int nbUsed;
-  HeatingPeriod periods[10];
+  uint nbUsed;
+  HeatingPeriod periods[MY_CONFIG_MAX_NB_TIMESLOTS];
 };
 
 class HeatingPeriods {
-  private:
-    DailyPeriod m_dailyPeriods[7];
-
-    bool addPeriod(int dayOfWeek, int hour, int minute, int endHour, int endMinute);
-
   public:
     HeatingPeriods();
     ~HeatingPeriods();
 
+    DailyPeriod m_dailyPeriods[7];
+
     // return true if inside an existing period
-    bool checkPeriod(int dayOfWeek, int hour, int minute);
+    bool checkPeriod(uint dayOfWeek, uint hour, uint minute);
+
+    bool addPeriod(uint dayOfWeek, uint hour, uint minute, uint endHour, uint endMinute);
 
 };
 

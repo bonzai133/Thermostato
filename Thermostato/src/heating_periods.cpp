@@ -12,19 +12,19 @@ HeatingPeriods::~HeatingPeriods() {
 
 }
 
-bool HeatingPeriods::addPeriod(int dayOfWeek, int startHour, int startMinute, int endHour, int endMinute) {
+bool HeatingPeriods::addPeriod(uint dayOfWeek, uint startHour, uint startMinute, uint endHour, uint endMinute) {
     // Check input
-    if (dayOfWeek >= 0 && dayOfWeek < 7) {
+    if (dayOfWeek >= 7) {
         return false;
     }
 
-    int index = m_dailyPeriods[dayOfWeek].nbUsed + 1;
+    uint index = m_dailyPeriods[dayOfWeek].nbUsed + 1;
     if (index > sizeof(m_dailyPeriods[dayOfWeek].periods)) {
         return false;
     }
 
-    int start = startHour * 60 + startMinute;
-    int end = endHour * 60 + endMinute;
+    uint start = startHour * 60 + startMinute;
+    uint end = endHour * 60 + endMinute;
     if (startHour < 0 || startMinute < 0 || endHour < 0 || endMinute < 0 ||
             startHour > 23 || startMinute > 59 || endHour > 23 || endMinute > 59 ||
             start >= end) {
@@ -39,15 +39,15 @@ bool HeatingPeriods::addPeriod(int dayOfWeek, int startHour, int startMinute, in
 }
 
 // Return true if inside an existing period
-bool HeatingPeriods::checkPeriod(int dayOfWeek, int hour, int minute) {
+bool HeatingPeriods::checkPeriod(uint dayOfWeek, uint hour, uint minute) {
     if (dayOfWeek >= 0 && dayOfWeek < 7 && hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
-        int nbUse = m_dailyPeriods[dayOfWeek].nbUsed;
-        for(int i = 0; i < nbUse; i++) {
+        uint nbUse = m_dailyPeriods[dayOfWeek].nbUsed;
+        for(uint i = 0; i < nbUse; i++) {
             HeatingPeriod period = m_dailyPeriods[dayOfWeek].periods[i];
 
-            int t = hour * 60 + minute;
-            int start = period.startHour * 60 + period.startMinute;
-            int end = period.endHour * 60 + period.endMinute;
+            uint t = hour * 60 + minute;
+            uint start = period.startHour * 60 + period.startMinute;
+            uint end = period.endHour * 60 + period.endMinute;
 
             if (start <= t && t <= end) {
                 return true;

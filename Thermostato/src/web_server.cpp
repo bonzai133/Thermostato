@@ -194,7 +194,7 @@ void WebServer::HandleGetAdvancedConfig(AsyncWebServerRequest *request) {
 
 void WebServer::HandleGetTimeSlots(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
-  DynamicJsonDocument doc(1024);
+  DynamicJsonDocument doc(MY_CONFIG_SIZE_JSON_TIMESLOT);
   JsonArray tsArray = doc.createNestedArray("timeSlots");
 
   m_settings->getTimeSlots(tsArray);
@@ -279,7 +279,7 @@ void WebServer::initServer(void) {
     }
 
     if (isValid) {
-      m_settings->commit();
+      m_settings->SaveConfig();
       request->send(200, "application/json", "{\"message\":\"OK\"}");
     } else {
       request->send(400, "application/json", "{\"message\":\"Invalid parameters\"}");
@@ -302,7 +302,7 @@ void WebServer::initServer(void) {
     }
 
     if (isValid) {
-      m_settings->commit();
+      m_settings->SaveConfig();
       request->send(200, "application/json", "{\"message\":\"OK\"}");
     } else {
       request->send(400, "application/json", "{\"message\":\"Invalid parameters\"}");
@@ -324,7 +324,7 @@ void WebServer::initServer(void) {
     }
 
     if (isValid) {
-      m_settings->commit();
+      m_settings->SaveTimeSlots();
       request->send(200, "application/json", "{\"message\":\"OK\"}");
     } else {
       request->send(400, "application/json", "{\"message\":\"Invalid parameters\"}");

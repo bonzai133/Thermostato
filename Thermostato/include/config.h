@@ -24,4 +24,12 @@
 
 #define MY_CONFIG_RELAY_GPIO 5
 
+// https://arduinojson.org/v6/assistant
+// 8 periods per day
+// Min Json doc = 3740 -> Recommended = 4096
+// Strings => 700
+#define MY_CONFIG_SIZE_JSON_TIMESLOT 4096
+#define MY_CONFIG_MAX_NB_TIMESLOTS 8
+#define MY_TIMESLOTS_FILE "/config/timeslots.cfg"
+
 #endif

@@ -5,7 +5,7 @@
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include "time_utils.h"
-
+#include "heating_periods.h"
 
 Settings::Settings() {
     // Init members
@@ -28,21 +28,33 @@ Settings::Settings() {
         snprintf(m_persistentData.tempDeltaHorsGel, 5, MY_CONFIG_TEMP_DELTA);
         
         m_persistentData.heatingMode = MY_CONFIG_HEATING_MODE;
-
-        SaveConfig();
     }
 }
 
 void Settings::LoadConfig() {
-    File configFile = LittleFS.open(MY_CONFIG_FILE, "r");
-    configFile.readBytes((char *)&m_persistentData, sizeof (persistentData));
-    configFile.close();
+    if (LittleFS.exists(MY_CONFIG_FILE)) {
+        File configFile = LittleFS.open(MY_CONFIG_FILE, "r");
+        configFile.readBytes((char *)&m_persistentData, sizeof (persistentData));
+        configFile.close();
+    }
+
+    if (LittleFS.exists(MY_TIMESLOTS_FILE)) {
+        File timeslotsFile = LittleFS.open(MY_TIMESLOTS_FILE, "r");
+        timeslotsFile.readBytes((char *)&m_HeatingPeriods.m_dailyPeriods, 7 * sizeof (DailyPeriod));
+        timeslotsFile.close();
+    }
 }
 
 void Settings::SaveConfig() {
     File configFile = LittleFS.open(MY_CONFIG_FILE, "w");
     configFile.write((char *)&m_persistentData, sizeof (persistentData));
     configFile.close();
+}
+
+void Settings::SaveTimeSlots() {
+    File timeslotsFile = LittleFS.open(MY_TIMESLOTS_FILE, "w");
+    timeslotsFile.write((char *)&m_HeatingPeriods.m_dailyPeriods, 7 * sizeof (DailyPeriod));
+    timeslotsFile.close();    
 }
 
 String Settings::getTempSetpoint() {
@@ -90,27 +102,69 @@ String Settings::getTempDelta() {
     return delta;
 }
 
-// TODO
+// m_HeatingPeriods to JsonArray
 void Settings::getTimeSlots(JsonArray& tsArray) {
   // Add objects to the JSON array
-  for (int i = 0; i < 3; ++i) {
-    // Create a JSON object within the array
-    JsonObject obj = tsArray.createNestedObject();
+  for (uint i = 0; i < 7; ++i) {
+    DailyPeriod dp = m_HeatingPeriods.m_dailyPeriods[i];
 
-    // Add data to the object
-    obj["day"] = "Mon";
+    JsonObject obj;
+    if (dp.nbUsed > 0) {
+        obj = tsArray.createNestedObject();
+        switch(i) {
+            case 0: obj["day"] = "Mon";
+            case 1: obj["day"] = "Tue";
+            case 2: obj["day"] = "Wed";
+            case 3: obj["day"] = "Thu";
+            case 4: obj["day"] = "Fri";
+            case 5: obj["day"] = "Sat";
+            case 6: obj["day"] = "Sun";
+            default: obj["day"] = "";
+        }
+    } else {
+        continue;
+    }
+    
     JsonArray times = obj.createNestedArray("times");
-    for (int i = 0; i < 2; ++i) {
-        // Create a JSON object within the array
+    for (uint j = 0; j < dp.nbUsed; j++) {
+        char tmpStr[6];
         JsonObject time = times.createNestedObject();
-        time["start"] = "00:00";
-        time["end"] = "00:00";
 
-      }
+        sprintf(tmpStr, "%d:%d", dp.periods[j].startHour, dp.periods[j].startMinute);
+        time["start"] = tmpStr;
+
+        sprintf(tmpStr, "%d:%d", dp.periods[j].endHour, dp.periods[j].endMinute);
+        time["end"] = tmpStr;
+    }
   }
 }
 
-// TODO
+// JsonArray to m_HeatingPeriods
 void Settings::setTimeSlots(JsonArray tsArray) {
+    // Iterate periods
+    uint day = 0;
+    uint hour = 0;
+    uint minute = 0;
+    uint endHour = 0;
+    uint endMinute = 0;
 
+    for(JsonVariantConst v : tsArray) {
+        if(v["day"] == "Mon") { day = 0; }
+        else if(v["day"] == "Tue") { day = 1; }
+        else if(v["day"] == "Wed") { day = 2; }
+        else if(v["day"] == "Thu") { day = 3; }
+        else if(v["day"] == "Fri") { day = 4; }
+        else if(v["day"] == "Sat") { day = 5; }
+        else if(v["day"] == "Sun") { day = 6; }
+
+        StaticJsonDocument<JSON_ARRAY_SIZE(MY_CONFIG_MAX_NB_TIMESLOTS)> doc;
+        deserializeJson(doc, v["times"]);
+
+        for(JsonVariant ts : doc.as<JsonArray>()) {
+            sscanf(ts["start"].as<const char*>(), "%d:%d", &hour, &minute);
+            sscanf(ts["end"].as<const char*>(), "%d:%d", &endHour, &endMinute);
+    
+            m_HeatingPeriods.addPeriod(day, hour, minute, endHour, endMinute);
+        }
+    }
 }

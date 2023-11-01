@@ -32,6 +32,8 @@ class Settings {
 
     void LoadConfig();
     void SaveConfig();
+    void SaveTimeSlots();
+
     String getHeatingMode() {
       String mode = "";
       switch(m_persistentData.heatingMode) {
@@ -71,8 +73,6 @@ class Settings {
     void setTempDeltaEco(String value) { snprintf(m_persistentData.tempDeltaEco, 5, value.c_str()); };
     void setTempHorsGel(String value) { snprintf(m_persistentData.tempHorsGel, 5, value.c_str()); };
     void setTempDeltaHorsGel(String value) { snprintf(m_persistentData.tempDeltaHorsGel, 5, value.c_str()); };
-
-    void commit() { SaveConfig(); }
 
     String getIpAddress() { return m_ipAddress; };
     String getNtpServer() { return m_ntpServer; };

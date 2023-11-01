@@ -68,6 +68,7 @@ const char* password = "";
     - Display timezone + date
 - About
   - Better css
+- TODO Remove examples from web_server.cpp (gpio, ws)
 
 # REST API
 - /api/config
@@ -80,7 +81,8 @@ const char* password = "";
   - Configuration of heating periods
     - [x] POST / GET app.py + html
     - [x] POST / GET web server
-    - [ ] Persist Load / Save (settings::getTimeSlot setTimeSlot)
+    - [x] Persist Load / Save (settings::getTimeSlot setTimeSlot)
+    - [ ] Tests
 
 # Monitoring
   - Expose /metrics for Prometheus
