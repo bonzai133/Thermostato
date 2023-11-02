@@ -112,14 +112,14 @@ void Settings::getTimeSlots(JsonArray& tsArray) {
     if (dp.nbUsed > 0) {
         obj = tsArray.createNestedObject();
         switch(i) {
-            case 0: obj["day"] = "Mon";
-            case 1: obj["day"] = "Tue";
-            case 2: obj["day"] = "Wed";
-            case 3: obj["day"] = "Thu";
-            case 4: obj["day"] = "Fri";
-            case 5: obj["day"] = "Sat";
-            case 6: obj["day"] = "Sun";
-            default: obj["day"] = "";
+            case 0: obj["day"] = "Mon"; break;
+            case 1: obj["day"] = "Tue"; break;
+            case 2: obj["day"] = "Wed"; break;
+            case 3: obj["day"] = "Thu"; break;
+            case 4: obj["day"] = "Fri"; break;
+            case 5: obj["day"] = "Sat"; break;
+            case 6: obj["day"] = "Sun"; break;
+            default: obj["day"] = ""; break;
         }
     } else {
         continue;
@@ -130,10 +130,10 @@ void Settings::getTimeSlots(JsonArray& tsArray) {
         char tmpStr[6];
         JsonObject time = times.createNestedObject();
 
-        sprintf(tmpStr, "%d:%d", dp.periods[j].startHour, dp.periods[j].startMinute);
+        sprintf(tmpStr, "%02d:%02d", dp.periods[j].startHour, dp.periods[j].startMinute);
         time["start"] = tmpStr;
 
-        sprintf(tmpStr, "%d:%d", dp.periods[j].endHour, dp.periods[j].endMinute);
+        sprintf(tmpStr, "%02d:%02d", dp.periods[j].endHour, dp.periods[j].endMinute);
         time["end"] = tmpStr;
     }
   }
@@ -141,14 +141,18 @@ void Settings::getTimeSlots(JsonArray& tsArray) {
 
 // JsonArray to m_HeatingPeriods
 void Settings::setTimeSlots(JsonArray tsArray) {
+    // Reset existing periods
+    m_HeatingPeriods.resetPeriods();
+
     // Iterate periods
     uint day = 0;
     uint hour = 0;
     uint minute = 0;
     uint endHour = 0;
     uint endMinute = 0;
+    bool result = false;
 
-    for(JsonVariantConst v : tsArray) {
+    for(const auto& v : tsArray) {
         if(v["day"] == "Mon") { day = 0; }
         else if(v["day"] == "Tue") { day = 1; }
         else if(v["day"] == "Wed") { day = 2; }
@@ -157,14 +161,19 @@ void Settings::setTimeSlots(JsonArray tsArray) {
         else if(v["day"] == "Sat") { day = 5; }
         else if(v["day"] == "Sun") { day = 6; }
 
-        StaticJsonDocument<JSON_ARRAY_SIZE(MY_CONFIG_MAX_NB_TIMESLOTS)> doc;
-        deserializeJson(doc, v["times"]);
+        JsonArray times = v["times"].as<JsonArray>();
 
-        for(JsonVariant ts : doc.as<JsonArray>()) {
+        for(const auto& ts : times) {
             sscanf(ts["start"].as<const char*>(), "%d:%d", &hour, &minute);
             sscanf(ts["end"].as<const char*>(), "%d:%d", &endHour, &endMinute);
     
-            m_HeatingPeriods.addPeriod(day, hour, minute, endHour, endMinute);
+            Serial.printf("addPeriod Day=%d; Hour=%d; Minute=%d; endHour=%d; endMinute=%d", day, hour, minute, endHour, endMinute);
+            Serial.println("");
+
+            result = m_HeatingPeriods.addPeriod(day, hour, minute, endHour, endMinute);
+            if(result == false) {
+                Serial.println("Invalid period");
+            }
         }
     }
 }

@@ -26,10 +26,16 @@ void HeatingControl::refreshExtValues()
 {
     setTempSetpoint(m_settings->getTempSetpoint());
     setTempDelta(m_settings->getTempDelta());
-    m_temperature = m_tempSensor->getTemperature();
 
-    calculateState();
+    float temp = m_tempSensor->getTemperature();
+    // Check if NaN
+    if (temp != temp) {
+        Serial.println("Ignore Nan temperature !");
+    } else {
+        m_temperature = temp;
 
+        calculateState();
+    }
 }
 
 // Update heating state

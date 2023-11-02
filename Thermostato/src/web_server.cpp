@@ -8,62 +8,6 @@
 #include <ArduinoJson.h>
 
 AsyncWebServer server(80);
-AsyncWebSocket ws("/ws");
-
-// Set number of outputs
-#define NUM_OUTPUTS  4
-
-// Assign each GPIO to an output
-int outputGPIOs[NUM_OUTPUTS] = {5, 16, 10, 12};
-
-
-String getOutputStates(){
-  // JSONVar myArray;
-  // for (int i =0; i<NUM_OUTPUTS; i++){
-  //   myArray["gpios"][i]["output"] = String(outputGPIOs[i]);
-  //   myArray["gpios"][i]["state"] = String(digitalRead(outputGPIOs[i]));
-  // }
-  // String jsonString = JSON.stringify(myArray);
-  // return jsonString;
-  return "{}";
-}
-
-void notifyClients(String state) {
-  ws.textAll(state);
-}
-
-void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
-    AwsFrameInfo *info = (AwsFrameInfo*)arg;
-  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
-    data[len] = 0;
-    if (strcmp((char*)data, "states") == 0) {
-      notifyClients(getOutputStates());
-    }
-    else{
-      int gpio = atoi((char*)data);
-      digitalWrite(gpio, !digitalRead(gpio));
-      notifyClients(getOutputStates());
-    }
-  }
-}
-
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
-             void *arg, uint8_t *data, size_t len) {
-  switch (type) {
-    case WS_EVT_CONNECT:
-      Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-      break;
-    case WS_EVT_DISCONNECT:
-      Serial.printf("WebSocket client #%u disconnected\n", client->id());
-      break;
-    case WS_EVT_DATA:
-      handleWebSocketMessage(arg, data, len);
-      break;
-    case WS_EVT_PONG:
-    case WS_EVT_ERROR:
-      break;
-  }
-}
 
 WebServer::WebServer(Settings* settings, HeatingControl* heatingControl) {
   m_settings = settings;
@@ -73,15 +17,6 @@ WebServer::WebServer(Settings* settings, HeatingControl* heatingControl) {
 
 WebServer::~WebServer() {
 
-}
-
-void WebServer::serverCleanup(void) {
-  ws.cleanupClients();
-}
-
-void WebServer::initWebSocket(void) {
-  ws.onEvent(onEvent);
-  server.addHandler(&ws);
 }
 
 void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
@@ -117,8 +52,6 @@ void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
   response += m_heatingControl->isHeating();
   response += "\n";
 
-
-
   // Send response
   request->send(200, "text/plain; charset=utf-8", response);
 }
@@ -138,6 +71,11 @@ void WebServer::HandleTemperature(AsyncWebServerRequest *request) {
   DynamicJsonDocument json(100);
   json["temperature"] = m_heatingControl->getTemperature();
   serializeJson(json, *response);
+
+  // For debug only
+  serializeJson(json, Serial);
+  Serial.println("");
+
   request->send(response);
 }
 
@@ -157,6 +95,11 @@ void WebServer::HandleHomeStatus(AsyncWebServerRequest *request) {
   }
 
   serializeJson(json, *response);
+
+  // For debug only
+  serializeJson(json, Serial);
+  Serial.println("");
+
   request->send(response);
 }
 
@@ -173,6 +116,11 @@ void WebServer::HandleGetConfig(AsyncWebServerRequest *request) {
   json["deltaHorsGel"] = m_settings->getTempDeltaHorsGel();
 
   serializeJson(json, *response);
+
+  // For debug only
+  serializeJson(json, Serial);
+  Serial.println("");
+
   request->send(response);
 }
 
@@ -189,10 +137,16 @@ void WebServer::HandleGetAdvancedConfig(AsyncWebServerRequest *request) {
   json["lcdContrast"] = String(m_settings->getContrast());
 
   serializeJson(json, *response);
+  // For debug only
+  serializeJson(json, Serial);
+  Serial.println("");
+  
   request->send(response);
 }
 
 void WebServer::HandleGetTimeSlots(AsyncWebServerRequest *request) {
+  Serial.println("GET /api/timeSlots");
+
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   DynamicJsonDocument doc(MY_CONFIG_SIZE_JSON_TIMESLOT);
   JsonArray tsArray = doc.createNestedArray("timeSlots");
@@ -200,6 +154,11 @@ void WebServer::HandleGetTimeSlots(AsyncWebServerRequest *request) {
   m_settings->getTimeSlots(tsArray);
 
   serializeJson(doc, *response);
+
+  // For debug only
+  serializeJson(doc, Serial);
+  Serial.println("");
+
   request->send(response);
 }
 
@@ -211,14 +170,6 @@ String WebServer::Processor(const String& var)
 }
 
 void WebServer::initServer(void) {
-  // Set GPIOs as outputs
-  for (int i =0; i<NUM_OUTPUTS; i++){
-    pinMode(outputGPIOs[i], OUTPUT);
-  }
-
-  // initLittleFS() must be done before
-  initWebSocket();
-
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(LittleFS, "/home.html", "text/html", false);
@@ -244,6 +195,11 @@ void WebServer::initServer(void) {
 
   // TODO: how to use WebServer::HandlePutConfig ?
   AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/config", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+    Serial.println("POST /api/config");
+    // For debug only
+    serializeJson(json, Serial);
+    Serial.println("");
+
     JsonObject jsonObj = json.as<JsonObject>();
     bool isValid = true;
 
@@ -287,21 +243,18 @@ void WebServer::initServer(void) {
   });
   server.addHandler(handler);
 
-  AsyncCallbackJsonWebHandler* handler2 = new AsyncCallbackJsonWebHandler("/api/advancedConfig", [this](AsyncWebServerRequest *request, JsonVariant &json) {
-    JsonObject jsonObj = json.as<JsonObject>();
-    bool isValid = true;
 
-    // TODO: Check method == PUT
+  AsyncCallbackJsonWebHandler* handler2 = new AsyncCallbackJsonWebHandler("/api/advancedConfig", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+    Serial.println("POST /api/advancedConfig");
+    // For debug only
+    serializeJson(json, Serial);
+    Serial.println("");
+
+    JsonObject jsonObj = json.as<JsonObject>();
 
     // Save config
     if(jsonObj.containsKey("lcdContrast")) {
       m_settings->setContrast(jsonObj["lcdContrast"]);
-    }
-    else {
-      isValid = false;
-    }
-
-    if (isValid) {
       m_settings->SaveConfig();
       request->send(200, "application/json", "{\"message\":\"OK\"}");
     } else {
@@ -312,24 +265,22 @@ void WebServer::initServer(void) {
 
 
   AsyncCallbackJsonWebHandler* handler3 = new AsyncCallbackJsonWebHandler("/api/timeSlots", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+    Serial.println("POST /api/timeSlots");
+    // For debug only
+    serializeJson(json, Serial);
+    Serial.println("");
+
     JsonObject jsonObj = json.as<JsonObject>();
-    bool isValid = true;
 
     // Save config
     if(jsonObj.containsKey("timeSlots")) {
       m_settings->setTimeSlots(jsonObj["timeSlots"]);
-    }
-    else {
-      isValid = false;
-    }
-
-    if (isValid) {
       m_settings->SaveTimeSlots();
       request->send(200, "application/json", "{\"message\":\"OK\"}");
     } else {
       request->send(400, "application/json", "{\"message\":\"Invalid parameters\"}");
     }
-  });
+  }, MY_CONFIG_SIZE_JSON_TIMESLOT);
   server.addHandler(handler3);
 
 

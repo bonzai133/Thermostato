@@ -48,5 +48,8 @@ float Temperature::getTemperature() {
 
   m_tempsensor->shutdown_wake(1); // shutdown MSP9808 - power consumption ~0.1 mikro Ampere, stops temperature sampling
 
+  Serial.printf("Read temp: %f", c);
+  Serial.println("");
+  
   return c;
 }

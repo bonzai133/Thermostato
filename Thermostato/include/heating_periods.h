@@ -25,7 +25,7 @@ class HeatingPeriods {
 
     // return true if inside an existing period
     bool checkPeriod(uint dayOfWeek, uint hour, uint minute);
-
+    void resetPeriods(void);
     bool addPeriod(uint dayOfWeek, uint hour, uint minute, uint endHour, uint endMinute);
 
 };

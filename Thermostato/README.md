@@ -44,10 +44,7 @@ const char* password = "";
 - Contain Settings and webpage
 - Access to config file (debug)
   - http://192.168.x.y/config/thermostato.cfg
-- TODO
-  - Remove /data/config/thermostato.cfg when building update to avoid erasing values set by user
-  - When /data/config is empty in little.fs, thermostato.cfg is deleted. How to keep it ?
-  - Use json file for simple modification (see arduinoJson example) ?
+  - http://192.168.x.y/config/timeslots.cfg
 
 # Display
 - Date and time
@@ -60,7 +57,6 @@ const char* password = "";
 
 # Web page
 - Home
-  - TODO: Replace mode from API by label
 - Config
 - Advanced config: 
   - TODO
@@ -68,7 +64,6 @@ const char* password = "";
     - Display timezone + date
 - About
   - Better css
-- TODO Remove examples from web_server.cpp (gpio, ws)
 
 # REST API
 - /api/config
@@ -82,11 +77,11 @@ const char* password = "";
     - [x] POST / GET app.py + html
     - [x] POST / GET web server
     - [x] Persist Load / Save (settings::getTimeSlot setTimeSlot)
-    - [ ] Tests
+    - [x] Tests
 
 # Monitoring
   - Expose /metrics for Prometheus
   - Temperature
+  - isHeating
   - TODO
-    - isHeating
     - ESP.getFreeHeap();

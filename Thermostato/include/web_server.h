@@ -14,7 +14,6 @@ class WebServer {
     Settings *m_settings;
     HeatingControl *m_heatingControl;
 
-    void initWebSocket(void);
     void HandleMetrics(AsyncWebServerRequest *request);
     void HandleNotFound(AsyncWebServerRequest *request);
     void HandleAbout(AsyncWebServerRequest *request);
@@ -31,7 +30,6 @@ class WebServer {
     ~WebServer();
 
     void initServer();
-    void serverCleanup();
 
 };
 

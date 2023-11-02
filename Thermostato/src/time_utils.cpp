@@ -16,7 +16,7 @@ void init_time(String timezone, String ntpServer) {
   } else {
     char my_time[6];
     strftime(my_time, 6, "%H:%M", &timeinfo);
-    Serial.println(my_time);
+    // Serial.println(my_time);
   }
 }
 
@@ -27,7 +27,7 @@ String getFormattedTime() {
     Serial.println("Failed to obtain time");
   } else {
     strftime(my_time, 6, "%H:%M", &timeinfo);
-    Serial.println(my_time);
+    // Serial.println(my_time);
   }
 
   return my_time;

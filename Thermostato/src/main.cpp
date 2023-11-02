@@ -109,9 +109,6 @@ void setup(void) {
 }
 
 void loop(void) {
-  // Websocket cleanup
-  webServer->serverCleanup();
-
   // Refresh external values (setpoint, current temp)
   heatingControl->refreshExtValues();
 

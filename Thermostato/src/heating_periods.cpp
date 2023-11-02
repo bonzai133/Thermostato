@@ -3,13 +3,18 @@
 
 HeatingPeriods::HeatingPeriods() {
     //Init periods
-    for (int i = 0; i < 7; i++) {
-        m_dailyPeriods[i].nbUsed = 0;
-    }
+    resetPeriods();
 }
 
 HeatingPeriods::~HeatingPeriods() {
 
+}
+
+void HeatingPeriods::resetPeriods(void) {
+    //Init periods
+    for (int i = 0; i < 7; i++) {
+        m_dailyPeriods[i].nbUsed = 0;
+    }
 }
 
 bool HeatingPeriods::addPeriod(uint dayOfWeek, uint startHour, uint startMinute, uint endHour, uint endMinute) {
@@ -18,8 +23,9 @@ bool HeatingPeriods::addPeriod(uint dayOfWeek, uint startHour, uint startMinute,
         return false;
     }
 
-    uint index = m_dailyPeriods[dayOfWeek].nbUsed + 1;
-    if (index > sizeof(m_dailyPeriods[dayOfWeek].periods)) {
+    uint index = m_dailyPeriods[dayOfWeek].nbUsed;
+    // Return false if we can't add a new period
+    if (index >= MY_CONFIG_MAX_NB_TIMESLOTS) {
         return false;
     }
 
@@ -32,7 +38,7 @@ bool HeatingPeriods::addPeriod(uint dayOfWeek, uint startHour, uint startMinute,
     }
 
     // Add the period
-    m_dailyPeriods[dayOfWeek].nbUsed = index;
+    m_dailyPeriods[dayOfWeek].nbUsed = index + 1;
     m_dailyPeriods[dayOfWeek].periods[index] = {startHour, startMinute, endHour, endMinute};
     
     return true;
@@ -40,6 +46,9 @@ bool HeatingPeriods::addPeriod(uint dayOfWeek, uint startHour, uint startMinute,
 
 // Return true if inside an existing period
 bool HeatingPeriods::checkPeriod(uint dayOfWeek, uint hour, uint minute) {
+    Serial.printf("checkPeriod %d %d:%d", dayOfWeek, hour, minute);
+    Serial.println("");
+
     if (dayOfWeek >= 0 && dayOfWeek < 7 && hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
         uint nbUse = m_dailyPeriods[dayOfWeek].nbUsed;
         for(uint i = 0; i < nbUse; i++) {
@@ -53,10 +62,11 @@ bool HeatingPeriods::checkPeriod(uint dayOfWeek, uint hour, uint minute) {
                 return true;
             }
         }
+        Serial.println("No matching period");
         return false;
 
     } else {
+        Serial.println("Invalid parameters");
         return false;
     }
-
 }
