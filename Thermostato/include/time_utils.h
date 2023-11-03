@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 
+// day = 0 for Monday
 struct day_hour_minute {
   int day;
   int hour;

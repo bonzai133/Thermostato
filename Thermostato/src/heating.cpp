@@ -43,9 +43,8 @@ void HeatingControl::calculateState(void) {
     float delta = m_temperature - m_tempSetpoint;
     // m_isHeating update
     if(m_isHeating) {
-        // Stop heating if above high point
-        
-        if(delta >= m_tempDelta) {
+        // Stop heating if above SetPoint
+        if(delta >= 0) {
             m_isHeating = false;
         }
     } else {

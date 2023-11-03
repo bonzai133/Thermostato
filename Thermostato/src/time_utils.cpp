@@ -64,7 +64,13 @@ bool getDate(day_hour_minute *dhm) {
     Serial.println("Failed to obtain time");
     return false;
   } else {
-    dhm->day = timeinfo.tm_wday;
+    // tm_wday = 0 for Sunday -> translate to Monday = 0
+    if(timeinfo.tm_wday >= 6) {
+      dhm->day = 0;
+    } else {
+      dhm->day = timeinfo.tm_wday - 1;
+    }
+    
     dhm->hour = timeinfo.tm_hour;
     dhm->minute = timeinfo.tm_min;
   }

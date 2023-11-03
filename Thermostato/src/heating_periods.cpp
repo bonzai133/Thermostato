@@ -46,8 +46,8 @@ bool HeatingPeriods::addPeriod(uint dayOfWeek, uint startHour, uint startMinute,
 
 // Return true if inside an existing period
 bool HeatingPeriods::checkPeriod(uint dayOfWeek, uint hour, uint minute) {
-    Serial.printf("checkPeriod %d %d:%d", dayOfWeek, hour, minute);
-    Serial.println("");
+    // Serial.printf("checkPeriod %d %d:%d", dayOfWeek, hour, minute);
+    // Serial.println("");
 
     if (dayOfWeek >= 0 && dayOfWeek < 7 && hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
         uint nbUse = m_dailyPeriods[dayOfWeek].nbUsed;
@@ -62,7 +62,7 @@ bool HeatingPeriods::checkPeriod(uint dayOfWeek, uint hour, uint minute) {
                 return true;
             }
         }
-        Serial.println("No matching period");
+        // Serial.println("No matching period");
         return false;
 
     } else {
