@@ -34,6 +34,7 @@ WebServer* webServer;
 Settings* gp_settings;
 Temperature* temperature;
 HeatingControl* heatingControl;
+unsigned long LastMeasureTime = 0;
 
 void initLittleFS(void) {
   if (!LittleFS.begin()) {
@@ -109,11 +110,17 @@ void setup(void) {
 }
 
 void loop(void) {
-  // Refresh external values (setpoint, current temp)
-  heatingControl->refreshExtValues();
+  unsigned long CurrentTime = millis();
+  
+  if ((CurrentTime - LastMeasureTime) >= MY_CONFIG_LOOP_DELAY)
+  {
+    // Refresh external values (setpoint, current temp)
+    heatingControl->refreshExtValues();
 
-  // Draw main screen
-  mainScreen->drawScreen();
+    // Draw main screen
+    mainScreen->drawScreen();
 
-  delay(15000);
+    // Reset timer
+    LastMeasureTime = CurrentTime;
+  }
 }

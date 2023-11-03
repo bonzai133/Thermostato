@@ -32,4 +32,7 @@
 #define MY_CONFIG_MAX_NB_TIMESLOTS 8
 #define MY_TIMESLOTS_FILE "/config/timeslots.cfg"
 
+// Delay of refresh in main loop
+#define MY_CONFIG_LOOP_DELAY 15000
+
 #endif
