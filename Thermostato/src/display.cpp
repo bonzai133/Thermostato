@@ -64,7 +64,7 @@ void MainScreen::drawScreen() {
 
   // Draw icons
   if(m_heatingControl->isHeating()) {
-    m_display->drawXbm(105, 22, 16, 16, sun_icon);
+    m_display->drawXbm(105, 22, 16, 16, icon_heating);
   }
 
   m_display->display();
