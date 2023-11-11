@@ -52,8 +52,6 @@ const char* password = "";
 - Heating mode
 - IP Address
 - High and low temperature setpoint
-- TODO
-  - Replace Sun icon by Pump icon
 
 # Web page
 - Home
@@ -71,17 +69,16 @@ const char* password = "";
   - Check PUT method
 
 # Relay control
+- Define and implement heating algorithm
+- Configuration of heating periods
 - TODO
-  - Define and implement heating algorithm
-  - Configuration of heating periods
-    - [x] POST / GET app.py + html
-    - [x] POST / GET web server
-    - [x] Persist Load / Save (settings::getTimeSlot setTimeSlot)
-    - [x] Tests
+  - Test Quick PID
+  - Calculate and limit heating time ratio
 
 # Monitoring
   - Expose /metrics for Prometheus
   - Temperature
   - isHeating
   - TODO
+    - Heating time
     - ESP.getFreeHeap();
