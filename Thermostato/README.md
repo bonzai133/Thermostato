@@ -79,6 +79,8 @@ const char* password = "";
   - Expose /metrics for Prometheus
   - Temperature
   - isHeating
+  - ESP.getFreeHeap
+  - uptime
   - TODO
     - Heating time
-    - ESP.getFreeHeap();
+

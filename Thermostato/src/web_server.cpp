@@ -52,6 +52,20 @@ void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
   response += m_heatingControl->isHeating();
   response += "\n";
 
+  // Free Heap
+  response += "# HELP thermostato_free_heap Free heap memory.\n";
+  response += "# TYPE thermostato_free_heap gauge\n";
+  response += "thermostato_free_heap ";
+  response += ESP.getFreeHeap();
+  response += "\n";
+
+  // Uptime
+  response += "# HELP thermostato_uptime_ms Uptime in ms.\n";
+  response += "# TYPE thermostato_uptime_ms counter\n";
+  response += "thermostato_uptime_ms ";
+  response += millis();
+  response += "\n";
+
   // Send response
   request->send(200, "text/plain; charset=utf-8", response);
 }
