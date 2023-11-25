@@ -58,6 +58,8 @@ String getFormattedDate() {
   return my_date;
 }
 
+// Get day hour minute
+// day: 0 -> Lun ... 6 -> Dim
 bool getDate(day_hour_minute *dhm) {
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)) {
@@ -65,8 +67,8 @@ bool getDate(day_hour_minute *dhm) {
     return false;
   } else {
     // tm_wday = 0 for Sunday -> translate to Monday = 0
-    if(timeinfo.tm_wday >= 6) {
-      dhm->day = 0;
+    if(timeinfo.tm_wday <= 0 || timeinfo.tm_wday > 6) {
+      dhm->day = 6;
     } else {
       dhm->day = timeinfo.tm_wday - 1;
     }
