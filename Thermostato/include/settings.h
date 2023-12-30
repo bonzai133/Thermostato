@@ -14,6 +14,8 @@ struct persistentData {
   char tempDeltaHorsGel[5];
 
   char heatingMode; // P, C, E, H
+  int contrast;
+  float tempOffset;
 };
 
 class Settings {
@@ -24,7 +26,6 @@ class Settings {
     String m_ipAddress;
     String m_ntpServer;
     const char *m_timezone;
-    int m_contrast;
 
   public:
     Settings();
@@ -56,6 +57,8 @@ class Settings {
     String getTempSetpoint();
     String getTempDelta();
 
+    float getTempOffset() { return m_persistentData.tempOffset; };
+
     void setHeatingMode(String value) {
       char mode = 'E';
       
@@ -74,13 +77,15 @@ class Settings {
     void setTempHorsGel(String value) { snprintf(m_persistentData.tempHorsGel, 5, value.c_str()); };
     void setTempDeltaHorsGel(String value) { snprintf(m_persistentData.tempDeltaHorsGel, 5, value.c_str()); };
 
+    void setTempOffset(float value) { m_persistentData.tempOffset = value; };
+
     String getIpAddress() { return m_ipAddress; };
     String getNtpServer() { return m_ntpServer; };
     String getTimezone() { return m_timezone; };
-    int getContrast() { return m_contrast; };
+    int getContrast() { return m_persistentData.contrast; };
 
     void setIpAddress(String ipAddress) { m_ipAddress = ipAddress; };
-    void setContrast(int value) {  m_contrast = value; };
+    void setContrast(int value) { m_persistentData.contrast = value; };
 
     void getTimeSlots(JsonArray& tsArray);
     void setTimeSlots(JsonArray tsArray);

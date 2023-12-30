@@ -149,6 +149,7 @@ void WebServer::HandleGetAdvancedConfig(AsyncWebServerRequest *request) {
   json["ntpServer"] = m_settings->getNtpServer();
 
   json["lcdContrast"] = String(m_settings->getContrast());
+  json["tempOffset"] = String(m_settings->getTempOffset());
 
   serializeJson(json, *response);
   // For debug only
@@ -269,6 +270,7 @@ void WebServer::initServer(void) {
     // Save config
     if(jsonObj.containsKey("lcdContrast")) {
       m_settings->setContrast(jsonObj["lcdContrast"]);
+      m_settings->setTempOffset(jsonObj["tempOffset"]);
       m_settings->SaveConfig();
       request->send(200, "application/json", "{\"message\":\"OK\"}");
     } else {

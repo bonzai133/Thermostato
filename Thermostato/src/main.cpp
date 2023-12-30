@@ -83,7 +83,7 @@ void setup(void) {
 
   // Init temp
   mainScreen->progress("Temp sensor");
-  temperature = new Temperature();
+  temperature = new Temperature(gp_settings);
   temperature->initSensor(MY_CONFIG_TEMP_SENSOR_ADDR, MY_CONFIG_TEMP_SENSOR_RESOLUTION);
 
   // Init heating control
