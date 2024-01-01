@@ -52,6 +52,12 @@ void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
   response += m_heatingControl->isHeating();
   response += "\n";
 
+  response += "# HELP thermostato_heating_time_seconds Current heating time.\n";
+  response += "# TYPE thermostato_heating_time_seconds gauge\n";
+  response += "thermostato_heating_time_seconds ";
+  response += m_heatingControl->getHeatingTimeSeconds();
+  response += "\n";
+
   // Free Heap
   response += "# HELP thermostato_free_heap Free heap memory.\n";
   response += "# TYPE thermostato_free_heap gauge\n";

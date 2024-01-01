@@ -12,11 +12,14 @@ class HeatingControl {
     float m_tempDelta;
     float m_temperature;
     bool m_isHeating;
+    unsigned long m_heatingStartTimeMs;
 
     void setTempSetpoint(String value) { m_tempSetpoint = value.toFloat(); };
     void setTempDelta(String value) { m_tempDelta = value.toFloat(); };
 
     void calculateState(void);
+    void setHeating(boolean isHeating);
+
 
   public:
     HeatingControl(Settings* settings, Temperature* tempSensor);
@@ -25,6 +28,7 @@ class HeatingControl {
     bool isHeating() { return m_isHeating; };
     float getTemperature() { return m_temperature; };
     String getTemperature(int precision) { return String(m_temperature, precision); };
+    String getHeatingTimeSeconds(void) { return String(m_heatingStartTimeMs / 1000); };
 
     void refreshExtValues();
 };

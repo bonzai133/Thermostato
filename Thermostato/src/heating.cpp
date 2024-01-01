@@ -11,7 +11,8 @@ HeatingControl::HeatingControl(Settings* settings, Temperature* tempSensor) {
     // Init values
     refreshExtValues();
 
-    m_isHeating=false;
+    m_isHeating = false;
+    m_heatingStartTimeMs = 0;
 
     pinMode(MY_CONFIG_RELAY_GPIO, OUTPUT);
 }
@@ -45,12 +46,12 @@ void HeatingControl::calculateState(void) {
     if(m_isHeating) {
         // Stop heating if above SetPoint
         if(delta >= 0) {
-            m_isHeating = false;
+            setHeating(false);
         }
     } else {
         // Start heating if below low point
         if(delta < -m_tempDelta) {
-            m_isHeating = true;
+            setHeating(true);
         }
     }
 
@@ -62,3 +63,19 @@ void HeatingControl::calculateState(void) {
     }
 
 }
+
+void HeatingControl::setHeating(boolean isHeating) {
+    // Update heating start time if state change
+    if (isHeating) {
+        if(!m_isHeating) {
+            m_heatingStartTimeMs = millis();
+        }
+
+    } else {
+        m_heatingStartTimeMs = 0;
+    }
+
+    // Update state
+    m_isHeating = isHeating;
+}
+

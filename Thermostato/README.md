@@ -81,6 +81,5 @@ const char* password = "";
   - isHeating
   - ESP.getFreeHeap
   - uptime
-  - TODO
-    - Heating time
+  - Heating time
 
