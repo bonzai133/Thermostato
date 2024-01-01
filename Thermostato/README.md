@@ -60,6 +60,9 @@ const char* password = "";
   - TODO
     - Persist values
     - Display timezone + date
+- Heting periods
+  - TODO
+    - Responsive table -> done in mockup. Backup/restore config when pushing littlefs
 - About
   - Better css
 
