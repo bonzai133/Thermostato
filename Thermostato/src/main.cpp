@@ -10,6 +10,7 @@
 #include <Wire.h>
 #include <WiFiUdp.h>
 #include <ESP8266WiFi.h>
+#include <ElegantOTA.h>
 #include "LittleFS.h"
 
 #include "settings.h"
@@ -123,4 +124,6 @@ void loop(void) {
     // Reset timer
     LastMeasureTime = CurrentTime;
   }
+
+  ElegantOTA.loop();
 }

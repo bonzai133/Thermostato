@@ -1,7 +1,7 @@
 #include "web_server.h"
 #include "LittleFS.h"
 // #include <Arduino_JSON.h>
-#include <AsyncElegantOTA.h>
+#include <ElegantOTA.h>
 #include "config.h"
 #include "time_utils.h"
 #include <AsyncJson.h>
@@ -301,7 +301,7 @@ void WebServer::initServer(void) {
 
 
   // Start ElegantOTA
-  AsyncElegantOTA.begin(&server);
+  ElegantOTA.begin(&server);
 
   // Start server
   server.begin();
