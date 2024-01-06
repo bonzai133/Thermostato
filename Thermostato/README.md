@@ -61,8 +61,7 @@ const char* password = "";
     - Persist values
     - Display timezone + date
 - Heting periods
-  - TODO
-    - Responsive table -> done in mockup. Backup/restore config when pushing littlefs
+    - Responsive table
 - About
   - Better css
 
