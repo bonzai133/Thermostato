@@ -79,3 +79,12 @@ void HeatingControl::setHeating(boolean isHeating) {
     m_isHeating = isHeating;
 }
 
+String HeatingControl::getHeatingTimeSeconds(void) {
+    if (m_isHeating) {
+        return String((m_heatingStartTimeMs - millis() / 1000));
+    }
+
+    return "0";
+    
+};
+

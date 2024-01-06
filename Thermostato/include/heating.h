@@ -28,7 +28,8 @@ class HeatingControl {
     bool isHeating() { return m_isHeating; };
     float getTemperature() { return m_temperature; };
     String getTemperature(int precision) { return String(m_temperature, precision); };
-    String getHeatingTimeSeconds(void) { return String(m_heatingStartTimeMs / 1000); };
+    
+    String getHeatingTimeSeconds(void);
 
     void refreshExtValues();
 };
