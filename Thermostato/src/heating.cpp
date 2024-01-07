@@ -13,6 +13,7 @@ HeatingControl::HeatingControl(Settings* settings, Temperature* tempSensor) {
 
     m_isHeating = false;
     m_heatingStartTimeMs = 0;
+    m_lastHeatingTimeMs = 0;
 
     pinMode(MY_CONFIG_RELAY_GPIO, OUTPUT);
 }
@@ -81,10 +82,12 @@ void HeatingControl::setHeating(boolean isHeating) {
 
 String HeatingControl::getHeatingTimeSeconds(void) {
     if (m_isHeating) {
-        return String((m_heatingStartTimeMs - millis() / 1000));
+        return String((millis() - m_heatingStartTimeMs) / 1000);
     }
 
     return "0";
-    
 };
 
+String HeatingControl::getLastHeatingTimeSeconds(void) {
+    return String(m_lastHeatingTimeMs / 1000);
+};
