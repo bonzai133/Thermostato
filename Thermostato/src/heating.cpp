@@ -73,7 +73,9 @@ void HeatingControl::setHeating(boolean isHeating) {
         }
 
     } else {
+        m_lastHeatingTimeMs = millis() - m_heatingStartTimeMs;
         m_heatingStartTimeMs = 0;
+
     }
 
     // Update state
