@@ -13,6 +13,7 @@ class HeatingControl {
     float m_temperature;
     bool m_isHeating;
     unsigned long m_heatingStartTimeMs;
+    unsigned long m_lastHeatingTimeMs;
 
     void setTempSetpoint(String value) { m_tempSetpoint = value.toFloat(); };
     void setTempDelta(String value) { m_tempDelta = value.toFloat(); };
@@ -30,6 +31,7 @@ class HeatingControl {
     String getTemperature(int precision) { return String(m_temperature, precision); };
     
     String getHeatingTimeSeconds(void);
+    String getLastHeatingTimeSeconds(void);
 
     void refreshExtValues();
 };
