@@ -11,6 +11,8 @@
 #include <WiFiUdp.h>
 #include <ESP8266WiFi.h>
 #include <ElegantOTA.h>
+#include <WebSerial.h>
+
 #include "LittleFS.h"
 
 #include "settings.h"

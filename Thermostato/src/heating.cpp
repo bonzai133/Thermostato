@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <WebSerial.h>
 #include "config.h"
 #include "heating.h"
 
@@ -9,7 +10,9 @@ HeatingControl::HeatingControl(Settings* settings, Temperature* tempSensor) {
     m_tempSensor = tempSensor;
 
     // Init values
-    refreshExtValues();
+    m_tempSetpoint = 0;
+    m_tempDelta = 0;
+    m_temperature = 0;
 
     m_isHeating = false;
     m_heatingStartTimeMs = 0;
@@ -33,6 +36,7 @@ void HeatingControl::refreshExtValues()
     // Check if NaN
     if (temp != temp) {
         Serial.println("Ignore Nan temperature !");
+        WebSerial.println("Ignore Nan temperature !");
     } else {
         m_temperature = temp;
 
@@ -55,27 +59,25 @@ void HeatingControl::calculateState(void) {
             setHeating(true);
         }
     }
-
-    // GPIO update
-    if(m_isHeating) {
-        digitalWrite(MY_CONFIG_RELAY_GPIO, 1);
-    } else {
-        digitalWrite(MY_CONFIG_RELAY_GPIO, 0);
-    }
-
 }
 
 void HeatingControl::setHeating(boolean isHeating) {
     // Update heating start time if state change
     if (isHeating) {
         if(!m_isHeating) {
+            WebSerial.print("Start heating: ");
+            digitalWrite(MY_CONFIG_RELAY_GPIO, 1);
             m_heatingStartTimeMs = millis();
+            WebSerial.println(m_heatingStartTimeMs);
         }
-
     } else {
+        WebSerial.print("Stop heating: ");
+
+        digitalWrite(MY_CONFIG_RELAY_GPIO, 0);
         m_lastHeatingTimeMs = millis() - m_heatingStartTimeMs;
         m_heatingStartTimeMs = 0;
 
+        WebSerial.println(m_lastHeatingTimeMs);
     }
 
     // Update state
@@ -87,7 +89,7 @@ String HeatingControl::getHeatingTimeSeconds(void) {
         return String((millis() - m_heatingStartTimeMs) / 1000);
     }
 
-    return "0";
+    return String("0");
 };
 
 String HeatingControl::getLastHeatingTimeSeconds(void) {

@@ -1,11 +1,12 @@
-#include "web_server.h"
-#include "LittleFS.h"
-// #include <Arduino_JSON.h>
-#include <ElegantOTA.h>
-#include "config.h"
-#include "time_utils.h"
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
+#include <ElegantOTA.h>
+#include <WebSerial.h>
+
+#include "web_server.h"
+#include "LittleFS.h"
+#include "config.h"
+#include "time_utils.h"
 
 AsyncWebServer server(80);
 
@@ -315,6 +316,21 @@ void WebServer::initServer(void) {
   // Start ElegantOTA
   ElegantOTA.begin(&server);
 
+  // WebSerial is accessible at "<IP Address>/webserial" in browser
+  WebSerial.begin(&server);
+  // Attach Message Callback
+  WebSerial.msgCallback(std::bind(&WebServer::recvMsg, this, std::placeholders::_1, std::placeholders::_2));
+
   // Start server
   server.begin();
+}
+
+/* Message callback of WebSerial */
+void WebServer::recvMsg(uint8_t *data, size_t len) {
+  WebSerial.println("Received Data...");
+  String d = "";
+  for(uint i=0; i<len; i++){
+    d += char(data[i]);
+  }
+  WebSerial.println(d);
 }

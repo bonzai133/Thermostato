@@ -85,3 +85,8 @@ const char* password = "";
   - uptime
   - Heating time
 
+# Log / Debug
+  - Remote logs (WebSerial)
+- TODO
+  - Loop watch dog
+  - Restart reason
