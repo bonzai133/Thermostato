@@ -19,8 +19,6 @@ class HeatingControl {
     void setTempDelta(String value) { m_tempDelta = value.toFloat(); };
 
     void calculateState(void);
-    void setHeating(boolean isHeating);
-
 
   public:
     HeatingControl(Settings* settings, Temperature* tempSensor);
@@ -34,6 +32,7 @@ class HeatingControl {
     String getLastHeatingTimeSeconds(void);
 
     void refreshExtValues();
+    void setHeating(boolean isHeating);
 };
 
 #endif

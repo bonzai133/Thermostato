@@ -33,6 +33,7 @@ void HeatingControl::refreshExtValues()
     setTempDelta(m_settings->getTempDelta());
 
     float temp = m_tempSensor->getTemperature();
+   
     // Check if NaN
     if (temp != temp) {
         Serial.println("Ignore Nan temperature !");
@@ -90,8 +91,8 @@ String HeatingControl::getHeatingTimeSeconds(void) {
     }
 
     return String("0");
-};
+}
 
 String HeatingControl::getLastHeatingTimeSeconds(void) {
     return String(m_lastHeatingTimeMs / 1000);
-};
+}

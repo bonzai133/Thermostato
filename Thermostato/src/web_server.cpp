@@ -65,14 +65,26 @@ void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
   response += m_heatingControl->getLastHeatingTimeSeconds();
   response += "\n";
 
-  // Free Heap
   response += "# HELP thermostato_free_heap Free heap memory.\n";
   response += "# TYPE thermostato_free_heap gauge\n";
   response += "thermostato_free_heap ";
   response += ESP.getFreeHeap();
   response += "\n";
 
-  // Uptime
+  response += "# HELP thermostato_reset_reason Reset reason code.\n";
+  response += "# TYPE thermostato_reset_reason gauge\n";
+  response += "thermostato_reset_reason ";
+  response += ESP.getResetReason();
+
+  response += "\n";
+  response += "# ";
+  response += ESP.getResetInfoPtr()->reason;
+  response += "\n";
+  response += "# ";
+  response += ESP.getResetInfoPtr()->exccause;
+
+  response += "\n";
+
   response += "# HELP thermostato_uptime_ms Uptime in ms.\n";
   response += "# TYPE thermostato_uptime_ms counter\n";
   response += "thermostato_uptime_ms ";
@@ -100,8 +112,8 @@ void WebServer::HandleTemperature(AsyncWebServerRequest *request) {
   serializeJson(json, *response);
 
   // For debug only
-  serializeJson(json, Serial);
-  Serial.println("");
+  // serializeJson(json, Serial);
+  // Serial.println("");
 
   request->send(response);
 }
@@ -124,8 +136,8 @@ void WebServer::HandleHomeStatus(AsyncWebServerRequest *request) {
   serializeJson(json, *response);
 
   // For debug only
-  serializeJson(json, Serial);
-  Serial.println("");
+  // serializeJson(json, Serial);
+  // Serial.println("");
 
   request->send(response);
 }
@@ -145,8 +157,8 @@ void WebServer::HandleGetConfig(AsyncWebServerRequest *request) {
   serializeJson(json, *response);
 
   // For debug only
-  serializeJson(json, Serial);
-  Serial.println("");
+  // serializeJson(json, Serial);
+  // Serial.println("");
 
   request->send(response);
 }
@@ -166,14 +178,14 @@ void WebServer::HandleGetAdvancedConfig(AsyncWebServerRequest *request) {
 
   serializeJson(json, *response);
   // For debug only
-  serializeJson(json, Serial);
-  Serial.println("");
+  // serializeJson(json, Serial);
+  // Serial.println("");
   
   request->send(response);
 }
 
 void WebServer::HandleGetTimeSlots(AsyncWebServerRequest *request) {
-  Serial.println("GET /api/timeSlots");
+  // Serial.println("GET /api/timeSlots");
 
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   DynamicJsonDocument doc(MY_CONFIG_SIZE_JSON_TIMESLOT);
@@ -184,8 +196,8 @@ void WebServer::HandleGetTimeSlots(AsyncWebServerRequest *request) {
   serializeJson(doc, *response);
 
   // For debug only
-  serializeJson(doc, Serial);
-  Serial.println("");
+  // serializeJson(doc, Serial);
+  // Serial.println("");
 
   request->send(response);
 }
@@ -223,10 +235,10 @@ void WebServer::initServer(void) {
 
   // TODO: how to use WebServer::HandlePutConfig ?
   AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/config", [this](AsyncWebServerRequest *request, JsonVariant &json) {
-    Serial.println("POST /api/config");
+    // Serial.println("POST /api/config");
     // For debug only
-    serializeJson(json, Serial);
-    Serial.println("");
+    // serializeJson(json, Serial);
+    // Serial.println("");
 
     JsonObject jsonObj = json.as<JsonObject>();
     bool isValid = true;
@@ -273,10 +285,10 @@ void WebServer::initServer(void) {
 
 
   AsyncCallbackJsonWebHandler* handler2 = new AsyncCallbackJsonWebHandler("/api/advancedConfig", [this](AsyncWebServerRequest *request, JsonVariant &json) {
-    Serial.println("POST /api/advancedConfig");
+    // Serial.println("POST /api/advancedConfig");
     // For debug only
-    serializeJson(json, Serial);
-    Serial.println("");
+    // serializeJson(json, Serial);
+    // Serial.println("");
 
     JsonObject jsonObj = json.as<JsonObject>();
 
@@ -294,10 +306,10 @@ void WebServer::initServer(void) {
 
 
   AsyncCallbackJsonWebHandler* handler3 = new AsyncCallbackJsonWebHandler("/api/timeSlots", [this](AsyncWebServerRequest *request, JsonVariant &json) {
-    Serial.println("POST /api/timeSlots");
+    // Serial.println("POST /api/timeSlots");
     // For debug only
-    serializeJson(json, Serial);
-    Serial.println("");
+    // serializeJson(json, Serial);
+    // Serial.println("");
 
     JsonObject jsonObj = json.as<JsonObject>();
 
@@ -327,10 +339,31 @@ void WebServer::initServer(void) {
 
 /* Message callback of WebSerial */
 void WebServer::recvMsg(uint8_t *data, size_t len) {
-  WebSerial.println("Received Data...");
   String d = "";
   for(uint i=0; i<len; i++){
     d += char(data[i]);
   }
-  WebSerial.println(d);
+
+  if(d == "on") {
+    WebSerial.println("Set Heating: ");
+    m_heatingControl->setHeating(true);
+    WebSerial.println("Set Heating: On");
+  }
+  else if(d == "off") {
+    WebSerial.println("Set Heating: ");
+    m_heatingControl->setHeating(false);
+    WebSerial.println("Set Heating: Off");
+  } else if (d == "r") {
+    WebSerial.println(ESP.getResetReason());
+    WebSerial.println(ESP.getResetInfoPtr()->reason);
+    WebSerial.println(ESP.getResetInfoPtr()->exccause);
+  } else {
+    WebSerial.print("Temp: ");
+    WebSerial.println(m_heatingControl->getTemperature());
+    WebSerial.print("Is heating: ");
+    WebSerial.println(m_heatingControl->isHeating());
+    WebSerial.println(m_heatingControl->getHeatingTimeSeconds());
+
+  }
+  WebSerial.println("Command processed !");
 }
