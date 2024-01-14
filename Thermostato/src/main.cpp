@@ -84,14 +84,6 @@ void setup(void) {
   gp_settings = new Settings();
   gp_settings->LoadConfig();
 
-  // Init temp
-  mainScreen->progress("Temp sensor");
-  temperature = new Temperature(gp_settings);
-  temperature->initSensor(MY_CONFIG_TEMP_SENSOR_ADDR, MY_CONFIG_TEMP_SENSOR_RESOLUTION);
-
-  // Init heating control
-  heatingControl = new HeatingControl(gp_settings, temperature);
-
   // Init Wifi
   mainScreen->progress("Wifi");
   init_wifi();
@@ -99,6 +91,14 @@ void setup(void) {
   // Init NTP Client
   mainScreen->progress("Time");
   init_time(gp_settings->getTimezone(), gp_settings->getNtpServer());
+
+  // Init temp
+  mainScreen->progress("Temp sensor");
+  temperature = new Temperature(gp_settings);
+  temperature->initSensor(MY_CONFIG_TEMP_SENSOR_ADDR, MY_CONFIG_TEMP_SENSOR_RESOLUTION);
+
+  // Init heating control
+  heatingControl = new HeatingControl(gp_settings, temperature);
 
   // Init web server
   mainScreen->progress("Web Server");
@@ -119,13 +119,16 @@ void loop(void) {
   {
     // Refresh external values (setpoint, current temp)
     heatingControl->refreshExtValues();
+    delay(100);
 
     // Draw main screen
     mainScreen->drawScreen();
+    delay(100);
 
     // Reset timer
     LastMeasureTime = CurrentTime;
   }
 
   ElegantOTA.loop();
+  delay(100);
 }
