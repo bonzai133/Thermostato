@@ -354,7 +354,7 @@ void WebServer::recvMsg(uint8_t *data, size_t len) {
     m_heatingControl->setHeating(false);
     WebSerial.println("Set Heating: Off");
   } else if (d == "r") {
-    WebSerial.println(ESP.getResetReason());
+    WebSerial.printf("Reset reason: %s\n", ESP.getResetReason().c_str());
     WebSerial.println(ESP.getResetInfoPtr()->reason);
     WebSerial.println(ESP.getResetInfoPtr()->exccause);
   } else {
