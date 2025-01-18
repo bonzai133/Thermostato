@@ -16,6 +16,7 @@ HeatingControl::HeatingControl(Settings* settings, Temperature* tempSensor) {
 
     m_isHeating = false;
     m_heatingStartTimeMs = 0;
+    m_heatingStopTimeMs = 10000000; // Set to large value to avoid waiting rest time after init
     m_lastHeatingTimeMs = 0;
 
     pinMode(MY_CONFIG_RELAY_GPIO, OUTPUT);
@@ -37,7 +38,7 @@ void HeatingControl::refreshExtValues()
     // Check if NaN
     if (temp != temp) {
         Serial.println("Ignore Nan temperature !");
-        WebSerial.println("Ignore Nan temperature !");
+        // WebSerial.println("Ignore Nan temperature !");
     } else {
         m_temperature = temp;
 
@@ -47,7 +48,7 @@ void HeatingControl::refreshExtValues()
 
 // Update heating state
 void HeatingControl::calculateState(void) {
-    boolean shouldHeat = false;
+    boolean shouldHeat = m_isHeating;
     float delta = m_temperature - m_tempSetpoint;
 
     // m_isHeating update
@@ -65,40 +66,47 @@ void HeatingControl::calculateState(void) {
 
     // Check heating ratio
     unsigned long heatTime = (millis() - m_heatingStartTimeMs) / 1000;
+    unsigned long restTime = (millis() - m_heatingStopTimeMs) / 1000;
     
     if (shouldHeat) {
         // Currently heating longer than expected
         if (m_isHeating && heatTime > m_settings->getHeatTime()) {
+            // WebSerial.println("Heating longer");
             shouldHeat = false;
         }
 
         // Not heating, check if rest period exhausted
-        if (!m_isHeating && m_lastHeatingTimeMs/1000 < m_settings->getRestTime()) {
+        if (!m_isHeating && restTime < m_settings->getRestTime()) {
+            // WebSerial.println("Rest not exhausted");
             shouldHeat = false;
         }
     }
 
     // Update heating state
-    setHeating(shouldHeat);
+    if(m_isHeating != shouldHeat) {
+        setHeating(shouldHeat);
+    }
+
 }
 
 void HeatingControl::setHeating(boolean isHeating) {
     // Update heating start time if state change
     if (isHeating) {
         if(!m_isHeating) {
-            WebSerial.print("Start heating: ");
+            // WebSerial.print("Start heating: ");
             digitalWrite(MY_CONFIG_RELAY_GPIO, 1);
             m_heatingStartTimeMs = millis();
-            WebSerial.println(m_heatingStartTimeMs);
+            // WebSerial.println(m_heatingStartTimeMs);
         }
     } else {
-        WebSerial.print("Stop heating: ");
+        // WebSerial.print("Stop heating: ");
 
         digitalWrite(MY_CONFIG_RELAY_GPIO, 0);
+        m_heatingStopTimeMs = millis();
         m_lastHeatingTimeMs = millis() - m_heatingStartTimeMs;
         m_heatingStartTimeMs = 0;
-
-        WebSerial.println(m_lastHeatingTimeMs);
+        
+        // WebSerial.println(m_heatingStopTimeMs);
     }
 
     // Update state
@@ -108,6 +116,14 @@ void HeatingControl::setHeating(boolean isHeating) {
 String HeatingControl::getHeatingTimeSeconds(void) {
     if (m_isHeating) {
         return String((millis() - m_heatingStartTimeMs) / 1000);
+    }
+
+    return String("0");
+}
+
+String HeatingControl::getRestTimeSeconds(void) {
+    if (!m_isHeating) {
+        return String((millis() - m_heatingStopTimeMs) / 1000);
     }
 
     return String("0");

@@ -59,6 +59,12 @@ void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
   response += m_heatingControl->getHeatingTimeSeconds();
   response += "\n";
 
+  response += "# HELP thermostato_rest_time_seconds Current rest time.\n";
+  response += "# TYPE thermostato_rest_time_seconds gauge\n";
+  response += "thermostato_rest_time_seconds ";
+  response += m_heatingControl->getRestTimeSeconds();
+  response += "\n";
+
   response += "# HELP thermostato_last_heating_time_seconds Last heating time.\n";
   response += "# TYPE thermostato_last_heating_time_seconds gauge\n";
   response += "thermostato_last_heating_time_seconds ";
@@ -369,6 +375,7 @@ void WebServer::recvMsg(uint8_t *data, size_t len) {
     WebSerial.print("Is heating: ");
     WebSerial.println(m_heatingControl->isHeating());
     WebSerial.println(m_heatingControl->getHeatingTimeSeconds());
+    WebSerial.println(m_heatingControl->getRestTimeSeconds());
 
   }
   WebSerial.println("Command processed !");
