@@ -30,6 +30,9 @@ Settings::Settings() {
 
         m_persistentData.contrast = MY_CONFIG_CONTRAST;
         m_persistentData.tempOffset = MY_CONFIG_TEMP_OFFSET;
+
+        m_persistentData.heatTime = MY_CONFIG_HEAT_TIME;
+        m_persistentData.restTime = MY_CONFIG_REST_TIME;
     }
 }
 

@@ -175,6 +175,8 @@ void WebServer::HandleGetAdvancedConfig(AsyncWebServerRequest *request) {
 
   json["lcdContrast"] = String(m_settings->getContrast());
   json["tempOffset"] = String(m_settings->getTempOffset());
+  json["heatTime"] = String(m_settings->getHeatTime());
+  json["restTime"] = String(m_settings->getRestTime());
 
   serializeJson(json, *response);
   // For debug only
@@ -293,9 +295,13 @@ void WebServer::initServer(void) {
     JsonObject jsonObj = json.as<JsonObject>();
 
     // Save config
-    if(jsonObj.containsKey("lcdContrast")) {
+    if(jsonObj.containsKey("lcdContrast") && jsonObj.containsKey("tempOffset") &&
+        jsonObj.containsKey("heatTime") && jsonObj.containsKey("restTime")) {
       m_settings->setContrast(jsonObj["lcdContrast"]);
       m_settings->setTempOffset(jsonObj["tempOffset"]);
+      m_settings->setHeatTime(jsonObj["heatTime"]);
+      m_settings->setRestTime(jsonObj["restTime"]);
+
       m_settings->SaveConfig();
       request->send(200, "application/json", "{\"message\":\"OK\"}");
     } else {

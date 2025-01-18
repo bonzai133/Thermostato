@@ -16,6 +16,9 @@ struct persistentData {
   char heatingMode; // P, C, E, H
   int contrast;
   float tempOffset;
+
+  uint16 heatTime;
+  uint16 restTime;
 };
 
 class Settings {
@@ -59,6 +62,9 @@ class Settings {
 
     float getTempOffset() { return m_persistentData.tempOffset; };
 
+    uint getHeatTime() { return m_persistentData.heatTime; };
+    uint getRestTime() { return m_persistentData.restTime; };
+
     void setHeatingMode(String value) {
       char mode = 'E';
       
@@ -78,6 +84,8 @@ class Settings {
     void setTempDeltaHorsGel(String value) { snprintf(m_persistentData.tempDeltaHorsGel, 5, value.c_str()); };
 
     void setTempOffset(float value) { m_persistentData.tempOffset = value; };
+    void setHeatTime(uint16 value) { m_persistentData.heatTime = value; };
+    void setRestTime(uint16 value) { m_persistentData.restTime = value; };
 
     String getIpAddress() { return m_ipAddress; };
     String getNtpServer() { return m_ntpServer; };

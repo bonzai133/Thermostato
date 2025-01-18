@@ -47,19 +47,39 @@ void HeatingControl::refreshExtValues()
 
 // Update heating state
 void HeatingControl::calculateState(void) {
+    boolean shouldHeat = false;
     float delta = m_temperature - m_tempSetpoint;
+
     // m_isHeating update
     if(m_isHeating) {
         // Stop heating if above SetPoint
         if(delta >= 0) {
-            setHeating(false);
+            shouldHeat = false;
         }
     } else {
         // Start heating if below low point
         if(delta < -m_tempDelta) {
-            setHeating(true);
+            shouldHeat = true;
         }
     }
+
+    // Check heating ratio
+    unsigned long heatTime = (millis() - m_heatingStartTimeMs) / 1000;
+    
+    if (shouldHeat) {
+        // Currently heating longer than expected
+        if (m_isHeating && heatTime > m_settings->getHeatTime()) {
+            shouldHeat = false;
+        }
+
+        // Not heating, check if rest period exhausted
+        if (!m_isHeating && m_lastHeatingTimeMs/1000 < m_settings->getRestTime()) {
+            shouldHeat = false;
+        }
+    }
+
+    // Update heating state
+    setHeating(shouldHeat);
 }
 
 void HeatingControl::setHeating(boolean isHeating) {
