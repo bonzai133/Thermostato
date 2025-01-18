@@ -52,10 +52,28 @@ void init_wifi(void) {
   Serial.println("");
 
   // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(500);
+  //   Serial.print(".");
+  // }
+  for(int i=0; i<120; i++) {
+    if (WiFi.status() == WL_CONNECTED) {
+      break;
+    } else {
+      delay(500);
+      Serial.print(".");
+    }
   }
+
+  // Check connection status and reset if not connected
+  if (WiFi.status() != WL_CONNECTED) {
+      Serial.print("Not connected after waiting delay: will reset");
+      Serial.flush();  
+      ESP.restart();
+
+      // TODO: after several restart, start without wifi (use rtc for time ?)
+  }
+
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(ssid);
