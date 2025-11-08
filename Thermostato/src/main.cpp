@@ -137,16 +137,14 @@ void loop(void) {
   {
     // Refresh external values (setpoint, current temp)
     heatingControl->refreshExtValues();
-    delay(100);
 
-    // Draw main screen
+    // Draw main screen - now only updates when needed
     mainScreen->drawScreen();
-    delay(100);
 
     // Reset timer
     LastMeasureTime = CurrentTime;
   }
 
+  // Handle OTA updates
   ElegantOTA.loop();
-  delay(100);
 }

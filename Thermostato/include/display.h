@@ -12,6 +12,14 @@ class MainScreen {
 
     Settings* m_settings;
     HeatingControl* m_heatingControl;
+    
+    // Cache previous values to prevent unnecessary updates
+    String m_prevTemp;
+    String m_prevSetpoint;
+    String m_prevTime;
+    String m_prevDate;
+    bool m_prevHeating;
+    uint8_t m_prevContrast;
 
   public:
     MainScreen();
