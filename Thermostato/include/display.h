@@ -20,6 +20,8 @@ class MainScreen {
     String m_prevDate;
     bool m_prevHeating;
     uint8_t m_prevContrast;
+    bool m_showColon;
+    unsigned long m_lastColonToggle;
 
   public:
     MainScreen();

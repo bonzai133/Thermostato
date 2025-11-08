@@ -3,6 +3,10 @@
 
 #include <Arduino.h>
 
+String getFormattedTime(bool showColon = true);
+String getFormattedDate();
+void init_time(String timezone, String ntpServer);
+
 // day = 0 for Monday
 struct day_hour_minute {
   int day;
@@ -10,9 +14,6 @@ struct day_hour_minute {
   int minute;
 };
 
-void init_time(String timezone, String ntpServer);
-String getFormattedTime();
-String getFormattedDate();
 bool getDate(day_hour_minute *dhm);
 
 #endif

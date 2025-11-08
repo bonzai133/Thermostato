@@ -14,6 +14,8 @@ MainScreen::MainScreen() {
   m_prevDate = "";
   m_prevHeating = false;
   m_prevContrast = 255; // Invalid value to force first update
+  m_showColon = true;
+  m_lastColonToggle = 0;
 }
 
 MainScreen::~MainScreen() {
@@ -50,11 +52,23 @@ void MainScreen::clear() {
 }
 
 void MainScreen::drawScreen() {
-  bool needsUpdate = false;
+  // Toggle colon every second
+  unsigned long currentMillis = millis();
+  if (currentMillis - m_lastColonToggle >= 1000) {
+    m_showColon = !m_showColon;
+    m_lastColonToggle = currentMillis;
+  }
+  else {
+    // No need to update other parameters
+    // Will be done next second
+    return;
+  }
+
   uint8_t newContrast = m_settings->getContrast();
   String newTemp = m_heatingControl->getTemperature(1);
   String newSetpoint = m_settings->getTempSetpoint();
-  String newTime = getFormattedTime();
+
+  String newTime = getFormattedTime(m_showColon);
   String newDate = getFormattedDate();
   bool newHeating = m_heatingControl->isHeating();
 
@@ -75,7 +89,6 @@ void MainScreen::drawScreen() {
     m_display->setColor(WHITE);
     m_display->drawString(0, 0, newDate);
     m_prevDate = newDate;
-    needsUpdate = true;
   }
 
   // Update time if changed
@@ -87,7 +100,6 @@ void MainScreen::drawScreen() {
     m_display->setColor(WHITE);
     m_display->drawString(88, 0, newTime);
     m_prevTime = newTime;
-    needsUpdate = true;
   }
 
   // Update temperature if changed
@@ -99,7 +111,6 @@ void MainScreen::drawScreen() {
     m_display->setColor(WHITE);
     m_display->drawString(0, 20, newTemp + "°C");
     m_prevTemp = newTemp;
-    needsUpdate = true;
   }
 
   // Update setpoint if changed
@@ -111,7 +122,6 @@ void MainScreen::drawScreen() {
     m_display->setColor(WHITE);
     m_display->drawString(96, 54, newSetpoint + "°C");
     m_prevSetpoint = newSetpoint;
-    needsUpdate = true;
   }
 
   // Update heating icon if changed
@@ -123,7 +133,6 @@ void MainScreen::drawScreen() {
       m_display->drawXbm(105, 22, 16, 16, icon_heating);
     }
     m_prevHeating = newHeating;
-    needsUpdate = true;
   }
 
   // IP address is static, only draw it if it's not already there
@@ -133,12 +142,9 @@ void MainScreen::drawScreen() {
     m_display->setColor(WHITE);
     m_display->drawString(0, 54, m_settings->getIpAddress());
     ipDrawn = true;
-    needsUpdate = true;
   }
 
-  // Only call display() if something changed
-  if (needsUpdate) {
-    m_display->display();
-  }
+  // Call display() to refresh screen with changes (at least colon have changed)
+  m_display->display();
 
 }

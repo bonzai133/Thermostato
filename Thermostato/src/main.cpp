@@ -136,17 +136,17 @@ void setup(void) {
 void loop(void) {
   unsigned long CurrentTime = millis();
   
+  // Check if we need to refresh temperature and settings
   if ((CurrentTime - LastMeasureTime) >= MY_CONFIG_LOOP_DELAY)
   {
     // Refresh external values (setpoint, current temp)
     heatingControl->refreshExtValues();
-
-    // Draw main screen - now only updates when needed
-    mainScreen->drawScreen();
-
-    // Reset timer
     LastMeasureTime = CurrentTime;
   }
+
+  // Always draw screen to handle colon blinking (drawScreen will internally
+  // check if anything needs to be updated)
+  mainScreen->drawScreen();
 
   // Handle OTA updates
   ElegantOTA.loop();
