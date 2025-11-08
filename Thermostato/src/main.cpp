@@ -128,6 +128,9 @@ void setup(void) {
   // Give refrence to main screen
   mainScreen->setSettings(gp_settings);
   mainScreen->setHeatingControl(heatingControl);
+
+  // Clear initialization messages before entering main loop
+  mainScreen->clear();
 }
 
 void loop(void) {

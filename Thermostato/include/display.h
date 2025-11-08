@@ -32,6 +32,9 @@ class MainScreen {
     void setHeatingControl(HeatingControl *heatingControl) { m_heatingControl = heatingControl; }
 
     void drawScreen();
+    
+    // Clear the display completely
+    void clear();
 };
 
 

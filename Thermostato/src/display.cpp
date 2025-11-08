@@ -44,6 +44,11 @@ void MainScreen::progress(String info) {
   m_display->display();
 }
 
+void MainScreen::clear() {
+  m_display->clear();
+  m_display->display();
+}
+
 void MainScreen::drawScreen() {
   bool needsUpdate = false;
   uint8_t newContrast = m_settings->getContrast();
