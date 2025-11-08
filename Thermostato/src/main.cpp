@@ -128,25 +128,26 @@ void setup(void) {
   // Give refrence to main screen
   mainScreen->setSettings(gp_settings);
   mainScreen->setHeatingControl(heatingControl);
+
+  // Clear initialization messages before entering main loop
+  mainScreen->clear();
 }
 
 void loop(void) {
   unsigned long CurrentTime = millis();
   
+  // Check if we need to refresh temperature and settings
   if ((CurrentTime - LastMeasureTime) >= MY_CONFIG_LOOP_DELAY)
   {
     // Refresh external values (setpoint, current temp)
     heatingControl->refreshExtValues();
-    delay(100);
-
-    // Draw main screen
-    mainScreen->drawScreen();
-    delay(100);
-
-    // Reset timer
     LastMeasureTime = CurrentTime;
   }
 
+  // Always draw screen to handle colon blinking (drawScreen will internally
+  // check if anything needs to be updated)
+  mainScreen->drawScreen();
+
+  // Handle OTA updates
   ElegantOTA.loop();
-  delay(100);
 }

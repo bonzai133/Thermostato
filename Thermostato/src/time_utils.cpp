@@ -20,17 +20,24 @@ void init_time(String timezone, String ntpServer) {
   }
 }
 
-String getFormattedTime() {
+String getFormattedTime(bool showColon) {
   struct tm timeinfo;
-  char my_time[6];
+  char hours[3];
+  char minutes[3];
+  
   if(!getLocalTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
-  } else {
-    strftime(my_time, 6, "%H:%M", &timeinfo);
-    // Serial.println(my_time);
+    return "--:--";
   }
-
-  return my_time;
+  
+  sprintf(hours, "%02d", timeinfo.tm_hour);
+  sprintf(minutes, "%02d", timeinfo.tm_min);
+  
+  if (showColon) {
+    return String(hours) + ":" + String(minutes);
+  } else {
+    return String(hours) + " " + String(minutes);
+  }
 }
 
 String getFormattedDate() {
