@@ -10,6 +10,9 @@
 #include <Wire.h>
 #include <WiFiUdp.h>
 #include <ESP8266WiFi.h>
+#include <ElegantOTA.h>
+#include <WebSerial.h>
+
 #include "LittleFS.h"
 
 #include "settings.h"
@@ -49,10 +52,28 @@ void init_wifi(void) {
   Serial.println("");
 
   // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(500);
+  //   Serial.print(".");
+  // }
+  for(int i=0; i<120; i++) {
+    if (WiFi.status() == WL_CONNECTED) {
+      break;
+    } else {
+      delay(500);
+      Serial.print(".");
+    }
   }
+
+  // Check connection status and reset if not connected
+  if (WiFi.status() != WL_CONNECTED) {
+      Serial.print("Not connected after waiting delay: will reset");
+      Serial.flush();  
+      ESP.restart();
+
+      // TODO: after several restart, start without wifi (use rtc for time ?)
+  }
+
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(ssid);
@@ -81,14 +102,6 @@ void setup(void) {
   gp_settings = new Settings();
   gp_settings->LoadConfig();
 
-  // Init temp
-  mainScreen->progress("Temp sensor");
-  temperature = new Temperature();
-  temperature->initSensor(MY_CONFIG_TEMP_SENSOR_ADDR, MY_CONFIG_TEMP_SENSOR_RESOLUTION);
-
-  // Init heating control
-  heatingControl = new HeatingControl(gp_settings, temperature);
-
   // Init Wifi
   mainScreen->progress("Wifi");
   init_wifi();
@@ -96,6 +109,14 @@ void setup(void) {
   // Init NTP Client
   mainScreen->progress("Time");
   init_time(gp_settings->getTimezone(), gp_settings->getNtpServer());
+
+  // Init temp
+  mainScreen->progress("Temp sensor");
+  temperature = new Temperature(gp_settings);
+  temperature->initSensor(MY_CONFIG_TEMP_SENSOR_ADDR, MY_CONFIG_TEMP_SENSOR_RESOLUTION);
+
+  // Init heating control
+  heatingControl = new HeatingControl(gp_settings, temperature);
 
   // Init web server
   mainScreen->progress("Web Server");
@@ -107,20 +128,26 @@ void setup(void) {
   // Give refrence to main screen
   mainScreen->setSettings(gp_settings);
   mainScreen->setHeatingControl(heatingControl);
+
+  // Clear initialization messages before entering main loop
+  mainScreen->clear();
 }
 
 void loop(void) {
   unsigned long CurrentTime = millis();
   
+  // Check if we need to refresh temperature and settings
   if ((CurrentTime - LastMeasureTime) >= MY_CONFIG_LOOP_DELAY)
   {
     // Refresh external values (setpoint, current temp)
     heatingControl->refreshExtValues();
-
-    // Draw main screen
-    mainScreen->drawScreen();
-
-    // Reset timer
     LastMeasureTime = CurrentTime;
   }
+
+  // Always draw screen to handle colon blinking (drawScreen will internally
+  // check if anything needs to be updated)
+  mainScreen->drawScreen();
+
+  // Handle OTA updates
+  ElegantOTA.loop();
 }

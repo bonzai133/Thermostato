@@ -11,7 +11,6 @@ Settings::Settings() {
     // Init members
     m_ntpServer = NTP_SERVER;
     m_timezone = MY_TZ;
-    m_contrast = 128;
 
     // Init config on LittleFS
     if (!LittleFS.exists(MY_CONFIG_PATH)) {
@@ -28,6 +27,12 @@ Settings::Settings() {
         snprintf(m_persistentData.tempDeltaHorsGel, 5, MY_CONFIG_TEMP_DELTA);
         
         m_persistentData.heatingMode = MY_CONFIG_HEATING_MODE;
+
+        m_persistentData.contrast = MY_CONFIG_CONTRAST;
+        m_persistentData.tempOffset = MY_CONFIG_TEMP_OFFSET;
+
+        m_persistentData.heatTime = MY_CONFIG_HEAT_TIME;
+        m_persistentData.restTime = MY_CONFIG_REST_TIME;
     }
 }
 

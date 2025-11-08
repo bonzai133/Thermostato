@@ -60,6 +60,8 @@ const char* password = "";
   - TODO
     - Persist values
     - Display timezone + date
+- Heting periods
+    - Responsive table
 - About
   - Better css
 
@@ -81,6 +83,10 @@ const char* password = "";
   - isHeating
   - ESP.getFreeHeap
   - uptime
-  - TODO
-    - Heating time
+  - Heating time
 
+# Log / Debug
+  - Remote logs (WebSerial)
+- TODO
+  - Loop watch dog
+  - Restart reason

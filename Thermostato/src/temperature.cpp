@@ -1,7 +1,9 @@
 #include "temperature.h"
+#include "settings.h"
 
-Temperature::Temperature() {
+Temperature::Temperature(Settings* settings) {
   m_tempsensor = new Adafruit_MCP9808();
+  m_settings = settings;
 }
 
 Temperature::~Temperature() {
@@ -46,9 +48,15 @@ float Temperature::getTemperature() {
   // Read and print out the temperature
   float c = m_tempsensor->readTempC();
 
-  m_tempsensor->shutdown_wake(1); // shutdown MSP9808 - power consumption ~0.1 mikro Ampere, stops temperature sampling
+  m_tempsensor->shutdown_wake(true); // shutdown MSP9808 - power consumption ~0.1 mikro Ampere, stops temperature sampling
 
   Serial.printf("Read temp: %f", c);
+  Serial.println("");
+
+  // Adjust temperature with offset
+  c = c + m_settings->getTempOffset();
+
+  Serial.printf("Adjusted temp: %f", c);
   Serial.println("");
   
   return c;

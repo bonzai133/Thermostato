@@ -1,11 +1,12 @@
-#include "web_server.h"
-#include "LittleFS.h"
-// #include <Arduino_JSON.h>
-#include <AsyncElegantOTA.h>
-#include "config.h"
-#include "time_utils.h"
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
+#include <ElegantOTA.h>
+#include <WebSerial.h>
+
+#include "web_server.h"
+#include "LittleFS.h"
+#include "config.h"
+#include "time_utils.h"
 
 AsyncWebServer server(80);
 
@@ -52,14 +53,44 @@ void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
   response += m_heatingControl->isHeating();
   response += "\n";
 
-  // Free Heap
+  response += "# HELP thermostato_heating_time_seconds Current heating time.\n";
+  response += "# TYPE thermostato_heating_time_seconds gauge\n";
+  response += "thermostato_heating_time_seconds ";
+  response += m_heatingControl->getHeatingTimeSeconds();
+  response += "\n";
+
+  response += "# HELP thermostato_rest_time_seconds Current rest time.\n";
+  response += "# TYPE thermostato_rest_time_seconds gauge\n";
+  response += "thermostato_rest_time_seconds ";
+  response += m_heatingControl->getRestTimeSeconds();
+  response += "\n";
+
+  response += "# HELP thermostato_last_heating_time_seconds Last heating time.\n";
+  response += "# TYPE thermostato_last_heating_time_seconds gauge\n";
+  response += "thermostato_last_heating_time_seconds ";
+  response += m_heatingControl->getLastHeatingTimeSeconds();
+  response += "\n";
+
   response += "# HELP thermostato_free_heap Free heap memory.\n";
   response += "# TYPE thermostato_free_heap gauge\n";
   response += "thermostato_free_heap ";
   response += ESP.getFreeHeap();
   response += "\n";
 
-  // Uptime
+  response += "# HELP thermostato_reset_reason Reset reason code.\n";
+  response += "# TYPE thermostato_reset_reason gauge\n";
+  response += "thermostato_reset_reason ";
+  response += ESP.getResetReason();
+
+  response += "\n";
+  response += "# ";
+  response += ESP.getResetInfoPtr()->reason;
+  response += "\n";
+  response += "# ";
+  response += ESP.getResetInfoPtr()->exccause;
+
+  response += "\n";
+
   response += "# HELP thermostato_uptime_ms Uptime in ms.\n";
   response += "# TYPE thermostato_uptime_ms counter\n";
   response += "thermostato_uptime_ms ";
@@ -87,8 +118,8 @@ void WebServer::HandleTemperature(AsyncWebServerRequest *request) {
   serializeJson(json, *response);
 
   // For debug only
-  serializeJson(json, Serial);
-  Serial.println("");
+  // serializeJson(json, Serial);
+  // Serial.println("");
 
   request->send(response);
 }
@@ -111,8 +142,8 @@ void WebServer::HandleHomeStatus(AsyncWebServerRequest *request) {
   serializeJson(json, *response);
 
   // For debug only
-  serializeJson(json, Serial);
-  Serial.println("");
+  // serializeJson(json, Serial);
+  // Serial.println("");
 
   request->send(response);
 }
@@ -132,8 +163,8 @@ void WebServer::HandleGetConfig(AsyncWebServerRequest *request) {
   serializeJson(json, *response);
 
   // For debug only
-  serializeJson(json, Serial);
-  Serial.println("");
+  // serializeJson(json, Serial);
+  // Serial.println("");
 
   request->send(response);
 }
@@ -149,17 +180,20 @@ void WebServer::HandleGetAdvancedConfig(AsyncWebServerRequest *request) {
   json["ntpServer"] = m_settings->getNtpServer();
 
   json["lcdContrast"] = String(m_settings->getContrast());
+  json["tempOffset"] = String(m_settings->getTempOffset());
+  json["heatTime"] = String(m_settings->getHeatTime());
+  json["restTime"] = String(m_settings->getRestTime());
 
   serializeJson(json, *response);
   // For debug only
-  serializeJson(json, Serial);
-  Serial.println("");
+  // serializeJson(json, Serial);
+  // Serial.println("");
   
   request->send(response);
 }
 
 void WebServer::HandleGetTimeSlots(AsyncWebServerRequest *request) {
-  Serial.println("GET /api/timeSlots");
+  // Serial.println("GET /api/timeSlots");
 
   AsyncResponseStream *response = request->beginResponseStream("application/json");
   DynamicJsonDocument doc(MY_CONFIG_SIZE_JSON_TIMESLOT);
@@ -170,8 +204,8 @@ void WebServer::HandleGetTimeSlots(AsyncWebServerRequest *request) {
   serializeJson(doc, *response);
 
   // For debug only
-  serializeJson(doc, Serial);
-  Serial.println("");
+  // serializeJson(doc, Serial);
+  // Serial.println("");
 
   request->send(response);
 }
@@ -209,10 +243,10 @@ void WebServer::initServer(void) {
 
   // TODO: how to use WebServer::HandlePutConfig ?
   AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/config", [this](AsyncWebServerRequest *request, JsonVariant &json) {
-    Serial.println("POST /api/config");
+    // Serial.println("POST /api/config");
     // For debug only
-    serializeJson(json, Serial);
-    Serial.println("");
+    // serializeJson(json, Serial);
+    // Serial.println("");
 
     JsonObject jsonObj = json.as<JsonObject>();
     bool isValid = true;
@@ -259,16 +293,21 @@ void WebServer::initServer(void) {
 
 
   AsyncCallbackJsonWebHandler* handler2 = new AsyncCallbackJsonWebHandler("/api/advancedConfig", [this](AsyncWebServerRequest *request, JsonVariant &json) {
-    Serial.println("POST /api/advancedConfig");
+    // Serial.println("POST /api/advancedConfig");
     // For debug only
-    serializeJson(json, Serial);
-    Serial.println("");
+    // serializeJson(json, Serial);
+    // Serial.println("");
 
     JsonObject jsonObj = json.as<JsonObject>();
 
     // Save config
-    if(jsonObj.containsKey("lcdContrast")) {
+    if(jsonObj.containsKey("lcdContrast") && jsonObj.containsKey("tempOffset") &&
+        jsonObj.containsKey("heatTime") && jsonObj.containsKey("restTime")) {
       m_settings->setContrast(jsonObj["lcdContrast"]);
+      m_settings->setTempOffset(jsonObj["tempOffset"]);
+      m_settings->setHeatTime(jsonObj["heatTime"]);
+      m_settings->setRestTime(jsonObj["restTime"]);
+
       m_settings->SaveConfig();
       request->send(200, "application/json", "{\"message\":\"OK\"}");
     } else {
@@ -279,10 +318,10 @@ void WebServer::initServer(void) {
 
 
   AsyncCallbackJsonWebHandler* handler3 = new AsyncCallbackJsonWebHandler("/api/timeSlots", [this](AsyncWebServerRequest *request, JsonVariant &json) {
-    Serial.println("POST /api/timeSlots");
+    // Serial.println("POST /api/timeSlots");
     // For debug only
-    serializeJson(json, Serial);
-    Serial.println("");
+    // serializeJson(json, Serial);
+    // Serial.println("");
 
     JsonObject jsonObj = json.as<JsonObject>();
 
@@ -299,8 +338,45 @@ void WebServer::initServer(void) {
 
 
   // Start ElegantOTA
-  AsyncElegantOTA.begin(&server);
+  ElegantOTA.begin(&server);
+
+  // WebSerial is accessible at "<IP Address>/webserial" in browser
+  WebSerial.begin(&server);
+  // Attach Message Callback
+  WebSerial.msgCallback(std::bind(&WebServer::recvMsg, this, std::placeholders::_1, std::placeholders::_2));
 
   // Start server
   server.begin();
+}
+
+/* Message callback of WebSerial */
+void WebServer::recvMsg(uint8_t *data, size_t len) {
+  String d = "";
+  for(uint i=0; i<len; i++){
+    d += char(data[i]);
+  }
+
+  if(d == "on") {
+    WebSerial.println("Set Heating: ");
+    m_heatingControl->setHeating(true);
+    WebSerial.println("Set Heating: On");
+  }
+  else if(d == "off") {
+    WebSerial.println("Set Heating: ");
+    m_heatingControl->setHeating(false);
+    WebSerial.println("Set Heating: Off");
+  } else if (d == "r") {
+    WebSerial.printf("Reset reason: %s\n", ESP.getResetReason().c_str());
+    WebSerial.println(ESP.getResetInfoPtr()->reason);
+    WebSerial.println(ESP.getResetInfoPtr()->exccause);
+  } else {
+    WebSerial.print("Temp: ");
+    WebSerial.println(m_heatingControl->getTemperature());
+    WebSerial.print("Is heating: ");
+    WebSerial.println(m_heatingControl->isHeating());
+    WebSerial.println(m_heatingControl->getHeatingTimeSeconds());
+    WebSerial.println(m_heatingControl->getRestTimeSeconds());
+
+  }
+  WebSerial.println("Command processed !");
 }
