@@ -4,9 +4,8 @@
     {"name": "date", "x": 0, "y": 0, "w": 80, "h": 10, "font": "ArialMT_Plain_10"},
     {"name": "time", "x": 88, "y": 0, "w": 40, "h": 16, "font": "ArialMT_Plain_16"},
     {"name": "temperature", "x": 0, "y": 20, "w": 95, "h": 24, "font": "ArialMT_Plain_24"},
-    {"name": "mode", "x": 97, "y": 22, "w": 12, "h": 16, "font": "ArialMT_Plain_16"},
     {"name": "heating_icon", "x": 111, "y": 22, "w": 16, "h": 16},
-    {"name": "setpoint", "x": 96, "y": 54, "w": 32, "h": 10, "font": "ArialMT_Plain_10"},
-    {"name": "ip", "x": 0, "y": 54, "w": 96, "h": 10, "font": "ArialMT_Plain_10"}
+    {"name": "setpoint", "x": 78, "y": 54, "w": 50, "h": 10, "font": "ArialMT_Plain_10"},
+    {"name": "ip", "x": 0, "y": 54, "w": 76, "h": 10, "font": "ArialMT_Plain_10"}
   ]
 }

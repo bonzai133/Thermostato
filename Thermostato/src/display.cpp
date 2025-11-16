@@ -10,7 +10,6 @@ MainScreen::MainScreen() {
   // Initialize cache values
   m_prevTemp = "";
   m_prevSetpoint = "";
-  m_prevMode = "";
   m_prevTime = "";
   m_prevDate = "";
   m_prevHeating = false;
@@ -114,43 +113,32 @@ void MainScreen::drawScreen() {
     m_prevTemp = newTemp;
   }
 
-  // Update setpoint if changed
-  if (newSetpoint != m_prevSetpoint) {
-    m_display->setFont(ArialMT_Plain_10);
-    // Clear the setpoint area only
-    m_display->setColor(BLACK);
-    m_display->fillRect(96, 54, 32, 10);
-    m_display->setColor(WHITE);
-    m_display->drawString(96, 54, newSetpoint + "°C");
-    m_prevSetpoint = newSetpoint;
+  // Compute heating mode single-letter and compose setpoint display
+  String modeLetter = "";
+  {
+    String modeName = m_settings->getHeatingMode();
+    if (modeName.equals("prog")) { modeLetter = "P"; }
+    else if (modeName.equals("confort")) { modeLetter = "C"; }
+    else if (modeName.equals("eco")) { modeLetter = "E"; }
+    else if (modeName.equals("horsgel")) { modeLetter = "H"; }
   }
 
-  // Update heating mode (single-letter) if changed
-  {
-    // Map settings mode string to single uppercase letter
-    String newMode = "";
-    String modeName = m_settings->getHeatingMode();
-    if (modeName.equals("prog")) {
-      newMode = "P";
-    } else if (modeName.equals("confort")) {
-      newMode = "C";
-    } else if (modeName.equals("eco")) {
-      newMode = "E";
-    } else if (modeName.equals("horsgel")) {
-      newMode = "H";
-    }
+  String newSetpointDisplay;
+  if (modeLetter.length() > 0) {
+    newSetpointDisplay = modeLetter + "=" + newSetpoint + "°C";
+  } else {
+    newSetpointDisplay = newSetpoint + "°C";
+  }
 
-    if (newMode != m_prevMode) {
-      m_display->setFont(ArialMT_Plain_16);
-      // Clear the mode area only
-      m_display->setColor(BLACK);
-      m_display->fillRect(97, 22, 12, 16);
-      m_display->setColor(WHITE);
-      if (newMode.length() > 0) {
-        m_display->drawString(97, 22, newMode);
-      }
-      m_prevMode = newMode;
-    }
+  // Update setpoint area if the combined display changed
+  if (newSetpointDisplay != m_prevSetpoint) {
+    m_display->setFont(ArialMT_Plain_10);
+    // Clear the setpoint area only (new width and position)
+    m_display->setColor(BLACK);
+    m_display->fillRect(78, 54, 50, 10);
+    m_display->setColor(WHITE);
+    m_display->drawString(78, 54, newSetpointDisplay);
+    m_prevSetpoint = newSetpointDisplay;
   }
 
   // Update heating icon if changed
