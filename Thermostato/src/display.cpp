@@ -10,6 +10,7 @@ MainScreen::MainScreen() {
   // Initialize cache values
   m_prevTemp = "";
   m_prevSetpoint = "";
+  m_prevMode = "";
   m_prevTime = "";
   m_prevDate = "";
   m_prevHeating = false;
@@ -122,6 +123,34 @@ void MainScreen::drawScreen() {
     m_display->setColor(WHITE);
     m_display->drawString(96, 54, newSetpoint + "°C");
     m_prevSetpoint = newSetpoint;
+  }
+
+  // Update heating mode (single-letter) if changed
+  {
+    // Map settings mode string to single uppercase letter
+    String newMode = "";
+    String modeName = m_settings->getHeatingMode();
+    if (modeName.equals("prog")) {
+      newMode = "P";
+    } else if (modeName.equals("confort")) {
+      newMode = "C";
+    } else if (modeName.equals("eco")) {
+      newMode = "E";
+    } else if (modeName.equals("horsgel")) {
+      newMode = "H";
+    }
+
+    if (newMode != m_prevMode) {
+      m_display->setFont(ArialMT_Plain_16);
+      // Clear the mode area only
+      m_display->setColor(BLACK);
+      m_display->fillRect(97, 22, 12, 16);
+      m_display->setColor(WHITE);
+      if (newMode.length() > 0) {
+        m_display->drawString(97, 22, newMode);
+      }
+      m_prevMode = newMode;
+    }
   }
 
   // Update heating icon if changed
