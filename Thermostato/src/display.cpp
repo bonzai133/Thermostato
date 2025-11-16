@@ -127,10 +127,10 @@ void MainScreen::drawScreen() {
   // Update heating icon if changed
   if (newHeating != m_prevHeating) {
     m_display->setColor(BLACK);
-    m_display->fillRect(105, 22, 16, 16);
+    m_display->fillRect(111, 22, 16, 16);
     if (newHeating) {
       m_display->setColor(WHITE);
-      m_display->drawXbm(105, 22, 16, 16, icon_heating);
+      m_display->drawXbm(111, 22, 16, 16, icon_heating);
     }
     m_prevHeating = newHeating;
   }

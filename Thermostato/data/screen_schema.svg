@@ -51,8 +51,8 @@
   <text x="2" y="33" fill="#ffd" font-size="4">Temp (0,20) 95×24</text>
 
   <!-- Heating icon -->
-  <rect x="105" y="22" width="16" height="16" fill="#ffb86b" fill-opacity="0.25" stroke="#ffb86b" stroke-opacity="0.6" stroke-width="0.3"/>
-  <text x="105" y="30" fill="#222" font-size="3.5">Icon 16×16</text>
+  <rect x="111" y="22" width="16" height="16" fill="#ffb86b" fill-opacity="0.25" stroke="#ffb86b" stroke-opacity="0.6" stroke-width="0.3"/>
+  <text x="111" y="30" fill="#222" font-size="3.5">Icon 16×16</text>
 
   <!-- Setpoint -->
   <rect x="96" y="54" width="32" height="10" fill="#8cf" fill-opacity="0.25" stroke="#8cf" stroke-opacity="0.6" stroke-width="0.3"/>
