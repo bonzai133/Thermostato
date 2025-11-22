@@ -125,7 +125,7 @@ void MainScreen::drawScreen() {
 
   String newSetpointDisplay;
   if (modeLetter.length() > 0) {
-    newSetpointDisplay = modeLetter + "=" + newSetpoint + "°C";
+    newSetpointDisplay = modeLetter + " " + newSetpoint + "°C";
   } else {
     newSetpointDisplay = newSetpoint + "°C";
   }
