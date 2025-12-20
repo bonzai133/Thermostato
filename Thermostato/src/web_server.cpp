@@ -229,20 +229,20 @@ void WebServer::initServer(void) {
   server.onNotFound(std::bind(&WebServer::HandleNotFound, this, std::placeholders::_1));
 
   // Metrics
-  server.on("/metrics", HTTP_GET, std::bind(&WebServer::HandleMetrics, this, std::placeholders::_1));
+  server.on(AsyncURIMatcher("/metrics"), HTTP_GET, std::bind(&WebServer::HandleMetrics, this, std::placeholders::_1), nullptr, nullptr);
 
   // Web Page
-  server.on("/about.html", HTTP_GET, std::bind(&WebServer::HandleAbout, this, std::placeholders::_1));
+  server.on(AsyncURIMatcher("/about.html"), HTTP_GET, std::bind(&WebServer::HandleAbout, this, std::placeholders::_1), nullptr, nullptr);
 
   // API
-  server.on("/api/temperature", HTTP_GET, std::bind(&WebServer::HandleTemperature, this, std::placeholders::_1));
-  server.on("/api/homeStatus", HTTP_GET, std::bind(&WebServer::HandleHomeStatus, this, std::placeholders::_1));
-  server.on("/api/config", HTTP_GET, std::bind(&WebServer::HandleGetConfig, this, std::placeholders::_1));
-  server.on("/api/advancedConfig", HTTP_GET, std::bind(&WebServer::HandleGetAdvancedConfig, this, std::placeholders::_1));
-  server.on("/api/timeSlots", HTTP_GET, std::bind(&WebServer::HandleGetTimeSlots, this, std::placeholders::_1));
+  server.on(AsyncURIMatcher("/api/temperature"), HTTP_GET, std::bind(&WebServer::HandleTemperature, this, std::placeholders::_1), nullptr, nullptr);
+  server.on(AsyncURIMatcher("/api/homeStatus"), HTTP_GET, std::bind(&WebServer::HandleHomeStatus, this, std::placeholders::_1), nullptr, nullptr);
+  server.on(AsyncURIMatcher("/api/config"), HTTP_GET, std::bind(&WebServer::HandleGetConfig, this, std::placeholders::_1), nullptr, nullptr);
+  server.on(AsyncURIMatcher("/api/advancedConfig"), HTTP_GET, std::bind(&WebServer::HandleGetAdvancedConfig, this, std::placeholders::_1), nullptr, nullptr);
+  server.on(AsyncURIMatcher("/api/timeSlots"), HTTP_GET, std::bind(&WebServer::HandleGetTimeSlots, this, std::placeholders::_1), nullptr, nullptr);
 
   // TODO: how to use WebServer::HandlePutConfig ?
-  AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/config", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+  AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler(AsyncURIMatcher("/api/config"), [this](AsyncWebServerRequest *request, JsonVariant &json) {
     // Serial.println("POST /api/config");
     // For debug only
     // serializeJson(json, Serial);
@@ -292,7 +292,7 @@ void WebServer::initServer(void) {
   server.addHandler(handler);
 
 
-  AsyncCallbackJsonWebHandler* handler2 = new AsyncCallbackJsonWebHandler("/api/advancedConfig", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+  AsyncCallbackJsonWebHandler* handler2 = new AsyncCallbackJsonWebHandler(AsyncURIMatcher("/api/advancedConfig"), [this](AsyncWebServerRequest *request, JsonVariant &json) {
     // Serial.println("POST /api/advancedConfig");
     // For debug only
     // serializeJson(json, Serial);
@@ -317,7 +317,7 @@ void WebServer::initServer(void) {
   server.addHandler(handler2);
 
 
-  AsyncCallbackJsonWebHandler* handler3 = new AsyncCallbackJsonWebHandler("/api/timeSlots", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+  AsyncCallbackJsonWebHandler* handler3 = new AsyncCallbackJsonWebHandler(AsyncURIMatcher("/api/timeSlots"), [this](AsyncWebServerRequest *request, JsonVariant &json) {
     // Serial.println("POST /api/timeSlots");
     // For debug only
     // serializeJson(json, Serial);
