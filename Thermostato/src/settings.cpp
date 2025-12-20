@@ -115,7 +115,7 @@ void Settings::getTimeSlots(JsonArray& tsArray) {
 
     JsonObject obj;
     if (dp.nbUsed > 0) {
-        obj = tsArray.createNestedObject();
+        obj = tsArray.add<JsonObject>();
         switch(i) {
             case 0: obj["day"] = "Mon"; break;
             case 1: obj["day"] = "Tue"; break;
@@ -130,10 +130,10 @@ void Settings::getTimeSlots(JsonArray& tsArray) {
         continue;
     }
     
-    JsonArray times = obj.createNestedArray("times");
+    JsonArray times = obj["times"].to<JsonArray>();
     for (uint j = 0; j < dp.nbUsed; j++) {
         char tmpStr[6];
-        JsonObject time = times.createNestedObject();
+        JsonObject time = times.add<JsonObject>();
 
         sprintf(tmpStr, "%02d:%02d", dp.periods[j].startHour, dp.periods[j].startMinute);
         time["start"] = tmpStr;
