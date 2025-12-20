@@ -48,7 +48,10 @@ void initLittleFS(void) {
 
 void init_wifi(void) {
   WiFi.mode(WIFI_STA);
+  mainScreen->progress("Wifi: Mode set");
+
   WiFi.begin(ssid, password);
+  mainScreen->progress("Wifi: Connecting");
   Serial.println("");
 
   // Wait for connection
@@ -60,6 +63,12 @@ void init_wifi(void) {
     if (WiFi.status() == WL_CONNECTED) {
       break;
     } else {
+      // Display attempt counter every 10 attempts
+      if (i % 10 == 0) {
+        char buffer[30];
+        snprintf(buffer, sizeof(buffer), "Wifi: Attempt %d/120", i);
+        mainScreen->progress(buffer);
+      }
       delay(500);
       Serial.print(".");
     }
@@ -67,12 +76,16 @@ void init_wifi(void) {
 
   // Check connection status and reset if not connected
   if (WiFi.status() != WL_CONNECTED) {
+      mainScreen->progress("Wifi: Failed!");
       Serial.print("Not connected after waiting delay: will reset");
-      Serial.flush();  
+      Serial.flush();
+      delay(2000);
       ESP.restart();
 
       // TODO: after several restart, start without wifi (use rtc for time ?)
   }
+
+  mainScreen->progress("Wifi: Connected");
 
   Serial.println("");
   Serial.print("Connected to ");
