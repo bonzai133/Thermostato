@@ -113,7 +113,7 @@ void WebServer::HandleAbout(AsyncWebServerRequest *request) {
 
 void WebServer::HandleTemperature(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
-  DynamicJsonDocument json(100);
+  JsonDocument json;
   json["temperature"] = m_heatingControl->getTemperature();
   serializeJson(json, *response);
 
@@ -126,7 +126,7 @@ void WebServer::HandleTemperature(AsyncWebServerRequest *request) {
 
 void WebServer::HandleHomeStatus(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
-  DynamicJsonDocument json(100);
+  JsonDocument json;
   json["temperature"] = m_heatingControl->getTemperature();
   json["mode"] = m_settings->getHeatingMode();
   
@@ -150,7 +150,7 @@ void WebServer::HandleHomeStatus(AsyncWebServerRequest *request) {
 
 void WebServer::HandleGetConfig(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
-  DynamicJsonDocument json(1024);
+  JsonDocument json;
 
   json["mode"] = m_settings->getHeatingMode();
   json["confort"] = m_settings->getTempConfort();
@@ -171,7 +171,7 @@ void WebServer::HandleGetConfig(AsyncWebServerRequest *request) {
 
 void WebServer::HandleGetAdvancedConfig(AsyncWebServerRequest *request) {
   AsyncResponseStream *response = request->beginResponseStream("application/json");
-  DynamicJsonDocument json(1024);
+  JsonDocument json;
 
   json["date"] = getFormattedDate();
   json["time"] = getFormattedTime();
@@ -196,8 +196,8 @@ void WebServer::HandleGetTimeSlots(AsyncWebServerRequest *request) {
   // Serial.println("GET /api/timeSlots");
 
   AsyncResponseStream *response = request->beginResponseStream("application/json");
-  DynamicJsonDocument doc(MY_CONFIG_SIZE_JSON_TIMESLOT);
-  JsonArray tsArray = doc.createNestedArray("timeSlots");
+  JsonDocument doc;
+  JsonArray tsArray = doc["timeSlots"].to<JsonArray>();
 
   m_settings->getTimeSlots(tsArray);
 
@@ -229,20 +229,20 @@ void WebServer::initServer(void) {
   server.onNotFound(std::bind(&WebServer::HandleNotFound, this, std::placeholders::_1));
 
   // Metrics
-  server.on("/metrics", HTTP_GET, std::bind(&WebServer::HandleMetrics, this, std::placeholders::_1));
+  server.on(AsyncURIMatcher("/metrics"), HTTP_GET, std::bind(&WebServer::HandleMetrics, this, std::placeholders::_1), nullptr, nullptr);
 
   // Web Page
-  server.on("/about.html", HTTP_GET, std::bind(&WebServer::HandleAbout, this, std::placeholders::_1));
+  server.on(AsyncURIMatcher("/about.html"), HTTP_GET, std::bind(&WebServer::HandleAbout, this, std::placeholders::_1), nullptr, nullptr);
 
   // API
-  server.on("/api/temperature", HTTP_GET, std::bind(&WebServer::HandleTemperature, this, std::placeholders::_1));
-  server.on("/api/homeStatus", HTTP_GET, std::bind(&WebServer::HandleHomeStatus, this, std::placeholders::_1));
-  server.on("/api/config", HTTP_GET, std::bind(&WebServer::HandleGetConfig, this, std::placeholders::_1));
-  server.on("/api/advancedConfig", HTTP_GET, std::bind(&WebServer::HandleGetAdvancedConfig, this, std::placeholders::_1));
-  server.on("/api/timeSlots", HTTP_GET, std::bind(&WebServer::HandleGetTimeSlots, this, std::placeholders::_1));
+  server.on(AsyncURIMatcher("/api/temperature"), HTTP_GET, std::bind(&WebServer::HandleTemperature, this, std::placeholders::_1), nullptr, nullptr);
+  server.on(AsyncURIMatcher("/api/homeStatus"), HTTP_GET, std::bind(&WebServer::HandleHomeStatus, this, std::placeholders::_1), nullptr, nullptr);
+  server.on(AsyncURIMatcher("/api/config"), HTTP_GET, std::bind(&WebServer::HandleGetConfig, this, std::placeholders::_1), nullptr, nullptr);
+  server.on(AsyncURIMatcher("/api/advancedConfig"), HTTP_GET, std::bind(&WebServer::HandleGetAdvancedConfig, this, std::placeholders::_1), nullptr, nullptr);
+  server.on(AsyncURIMatcher("/api/timeSlots"), HTTP_GET, std::bind(&WebServer::HandleGetTimeSlots, this, std::placeholders::_1), nullptr, nullptr);
 
   // TODO: how to use WebServer::HandlePutConfig ?
-  AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/api/config", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+  AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler(AsyncURIMatcher("/api/config"), [this](AsyncWebServerRequest *request, JsonVariant &json) {
     // Serial.println("POST /api/config");
     // For debug only
     // serializeJson(json, Serial);
@@ -254,28 +254,28 @@ void WebServer::initServer(void) {
     // TODO: Check method == PUT
 
     // Save config
-    if(jsonObj.containsKey("mode")) {
+    if(jsonObj["mode"].is<const char*>()) {
       m_settings->setHeatingMode(jsonObj["mode"]);
     }
     else {
       isValid = false;
     }
 
-    if(jsonObj.containsKey("confort") && jsonObj.containsKey("deltaConfort") ) {
+    if(jsonObj["confort"].is<float>() && jsonObj["deltaConfort"].is<float>() ) {
       m_settings->setTempConfort(jsonObj["confort"]);
       m_settings->setTempDeltaConfort(jsonObj["deltaConfort"]);
     } else {
       isValid = false;
     }
 
-    if(jsonObj.containsKey("eco") && jsonObj.containsKey("deltaEco") ) {
+    if(jsonObj["eco"].is<float>() && jsonObj["deltaEco"].is<float>() ) {
       m_settings->setTempEco(jsonObj["eco"]);
       m_settings->setTempDeltaEco(jsonObj["deltaEco"]);
     } else {
       isValid = false;
     }
 
-    if(jsonObj.containsKey("horsGel") && jsonObj.containsKey("deltaHorsGel") ) {
+    if(jsonObj["horsGel"].is<float>() && jsonObj["deltaHorsGel"].is<float>() ) {
       m_settings->setTempHorsGel(jsonObj["horsGel"]);
       m_settings->setTempDeltaHorsGel(jsonObj["deltaHorsGel"]);
     } else {
@@ -292,7 +292,7 @@ void WebServer::initServer(void) {
   server.addHandler(handler);
 
 
-  AsyncCallbackJsonWebHandler* handler2 = new AsyncCallbackJsonWebHandler("/api/advancedConfig", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+  AsyncCallbackJsonWebHandler* handler2 = new AsyncCallbackJsonWebHandler(AsyncURIMatcher("/api/advancedConfig"), [this](AsyncWebServerRequest *request, JsonVariant &json) {
     // Serial.println("POST /api/advancedConfig");
     // For debug only
     // serializeJson(json, Serial);
@@ -300,9 +300,15 @@ void WebServer::initServer(void) {
 
     JsonObject jsonObj = json.as<JsonObject>();
 
-    // Save config
-    if(jsonObj.containsKey("lcdContrast") && jsonObj.containsKey("tempOffset") &&
-        jsonObj.containsKey("heatTime") && jsonObj.containsKey("restTime")) {
+    // Helper lambda to check if a value is numeric (int or string convertible to int)
+    auto isNumeric = [](JsonVariant v) -> bool {
+      return v.is<int>() || v.is<float>() || v.is<const char*>();
+    };
+
+    // TODO: values are sent as strings from web form, would be better to change that in the frontend
+    // Save config - check if all required fields are present and numeric
+    if(isNumeric(jsonObj["lcdContrast"]) && isNumeric(jsonObj["tempOffset"]) &&
+        isNumeric(jsonObj["heatTime"]) && isNumeric(jsonObj["restTime"])) {
       m_settings->setContrast(jsonObj["lcdContrast"]);
       m_settings->setTempOffset(jsonObj["tempOffset"]);
       m_settings->setHeatTime(jsonObj["heatTime"]);
@@ -317,7 +323,7 @@ void WebServer::initServer(void) {
   server.addHandler(handler2);
 
 
-  AsyncCallbackJsonWebHandler* handler3 = new AsyncCallbackJsonWebHandler("/api/timeSlots", [this](AsyncWebServerRequest *request, JsonVariant &json) {
+  AsyncCallbackJsonWebHandler* handler3 = new AsyncCallbackJsonWebHandler(AsyncURIMatcher("/api/timeSlots"), [this](AsyncWebServerRequest *request, JsonVariant &json) {
     // Serial.println("POST /api/timeSlots");
     // For debug only
     // serializeJson(json, Serial);
@@ -326,14 +332,14 @@ void WebServer::initServer(void) {
     JsonObject jsonObj = json.as<JsonObject>();
 
     // Save config
-    if(jsonObj.containsKey("timeSlots")) {
+    if(jsonObj["timeSlots"].is<JsonArray>()) {
       m_settings->setTimeSlots(jsonObj["timeSlots"]);
       m_settings->SaveTimeSlots();
       request->send(200, "application/json", "{\"message\":\"OK\"}");
     } else {
       request->send(400, "application/json", "{\"message\":\"Invalid parameters\"}");
     }
-  }, MY_CONFIG_SIZE_JSON_TIMESLOT);
+  });
   server.addHandler(handler3);
 
 
@@ -343,7 +349,7 @@ void WebServer::initServer(void) {
   // WebSerial is accessible at "<IP Address>/webserial" in browser
   WebSerial.begin(&server);
   // Attach Message Callback
-  WebSerial.msgCallback(std::bind(&WebServer::recvMsg, this, std::placeholders::_1, std::placeholders::_2));
+  WebSerial.onMessage(std::bind(&WebServer::recvMsg, this, std::placeholders::_1, std::placeholders::_2));
 
   // Start server
   server.begin();
