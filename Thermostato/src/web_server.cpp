@@ -343,7 +343,7 @@ void WebServer::initServer(void) {
   // WebSerial is accessible at "<IP Address>/webserial" in browser
   WebSerial.begin(&server);
   // Attach Message Callback
-  WebSerial.msgCallback(std::bind(&WebServer::recvMsg, this, std::placeholders::_1, std::placeholders::_2));
+  WebSerial.onMessage(std::bind(&WebServer::recvMsg, this, std::placeholders::_1, std::placeholders::_2));
 
   // Start server
   server.begin();
