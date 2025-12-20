@@ -300,9 +300,15 @@ void WebServer::initServer(void) {
 
     JsonObject jsonObj = json.as<JsonObject>();
 
-    // Save config
-    if(jsonObj["lcdContrast"].is<int>() && jsonObj["tempOffset"].is<float>() &&
-        jsonObj["heatTime"].is<int>() && jsonObj["restTime"].is<int>()) {
+    // Helper lambda to check if a value is numeric (int or string convertible to int)
+    auto isNumeric = [](JsonVariant v) -> bool {
+      return v.is<int>() || v.is<float>() || v.is<const char*>();
+    };
+
+    // TODO: values are sent as strings from web form, would be better to change that in the frontend
+    // Save config - check if all required fields are present and numeric
+    if(isNumeric(jsonObj["lcdContrast"]) && isNumeric(jsonObj["tempOffset"]) &&
+        isNumeric(jsonObj["heatTime"]) && isNumeric(jsonObj["restTime"])) {
       m_settings->setContrast(jsonObj["lcdContrast"]);
       m_settings->setTempOffset(jsonObj["tempOffset"]);
       m_settings->setHeatTime(jsonObj["heatTime"]);
