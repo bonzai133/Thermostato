@@ -101,6 +101,10 @@ void initLittleFS(void) {
 }
 
 void init_wifi(void) {
+  // Disable persistent storage of WiFi config. This should help with some issues after WDT resets
+  WiFi.persistent(false);
+
+  // Connect to WiFi in Station mode
   WiFi.mode(WIFI_STA);
   mainScreen->progress("Wifi: Mode set");
 
@@ -120,7 +124,7 @@ void init_wifi(void) {
       // Display attempt counter every 10 attempts
       if (i % 10 == 0) {
         char buffer[30];
-        snprintf(buffer, sizeof(buffer), "Wifi: Attempt %d/120", i);
+        snprintf(buffer, sizeof(buffer), "Wifi: %d/120", i);
         mainScreen->progress(buffer);
       }
       delay(500);
@@ -134,6 +138,13 @@ void init_wifi(void) {
       Serial.print("Not connected after waiting delay: will reset");
       Serial.flush();
       delay(2000);
+
+      // Try to clear wifi config to avoid being stuck in a loop
+      WiFi.disconnect(true); // delete old wifi config
+      WiFi.mode(WIFI_OFF);
+      mainScreen->progress("Wifi: Disconnected");
+      delay(500);
+
       ESP.restart();
 
       // TODO: after several restart, start without wifi (use rtc for time ?)
