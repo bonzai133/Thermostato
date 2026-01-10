@@ -71,11 +71,26 @@ void WebServer::HandleMetrics(AsyncWebServerRequest *request) {
   response += m_heatingControl->getLastHeatingTimeSeconds();
   response += "\n";
 
+  uint32_t freeHeap, maxBlock;
+  ESP.getHeapStats(&freeHeap, &maxBlock);
   response += "# HELP thermostato_free_heap Free heap memory.\n";
   response += "# TYPE thermostato_free_heap gauge\n";
   response += "thermostato_free_heap ";
-  response += ESP.getFreeHeap();
+  response += freeHeap;
   response += "\n";
+
+  response += "# HELP thermostato_heap_max_block_size Max Block Size free in heap memory.\n";
+  response += "# TYPE thermostato_heap_max_block_size gauge\n";
+  response += "thermostato_heap_max_block_size ";
+  response += maxBlock;
+  response += "\n";
+
+  // fragmentation = 100 - (max_free_block / total_free_heap) * 100
+  response += "# HELP thermostato_heap_fragmentation fragmentation of heap memory.\n";
+  response += "# TYPE thermostato_heap_fragmentation gauge\n";
+  response += "thermostato_heap_fragmentation ";
+  response += ESP.getHeapFragmentation();
+  response += "\n";  
 
   response += "# HELP thermostato_reset_reason Reset reason code.\n";
   response += "# TYPE thermostato_reset_reason gauge\n";
